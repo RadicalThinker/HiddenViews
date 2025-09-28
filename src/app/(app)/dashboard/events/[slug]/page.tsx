@@ -600,8 +600,9 @@ export default function EventManagement() {
             size="sm"
             onClick={fetchEventData}
             disabled={isLoading}
+            className='dark:bg-bg-200 dark:hover:bg-bg-300'
           >
-            <RefreshCcw className="w-4 h-4 mr-2" />
+            <RefreshCcw className="w-4 h-4 mr-2 " />
             Refresh
           </Button>
         </div>
