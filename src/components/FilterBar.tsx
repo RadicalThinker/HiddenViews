@@ -173,6 +173,7 @@ export function FilterBar({ filters, onFiltersChange, reviewCount, queryCount }:
             variant={filters.showResolved ? 'default' : 'outline'}
             size="sm"
             onClick={() => updateFilter('showResolved', !filters.showResolved)}
+            className="relative dark:bg-bg-100 dark:text-text-200 dark:hover:text-zinc-950"
           >
             {filters.showResolved ? 'All' : 'Unresolved'}
           </Button>
@@ -184,7 +185,7 @@ export function FilterBar({ filters, onFiltersChange, reviewCount, queryCount }:
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="text-secondary-500 hover:text-secondary-700"
+            className="text-secondary-500 hover:text-secondary-700 dark:hover:text-zinc-950"
           >
             <X className="w-4 h-4 mr-1" />
             Clear

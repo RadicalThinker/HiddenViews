@@ -128,7 +128,7 @@ function Sidebar() {
                     className="hidden md:flex p-1 h-8 w-8"
                     onClick={() => setIsCollapsed(!isCollapsed)}
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 dark:hover:text-zinc-950" />
                   </Button>
                 </div>
               )}
