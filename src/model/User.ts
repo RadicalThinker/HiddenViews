@@ -74,6 +74,9 @@ export interface User extends Document {
   username: string;
   password: string;
   email: string;
+  isVerified: boolean;
+  verifyCode: string;
+  verifyCodeExpiry: Date;
   theme: 'light' | 'dark' | 'system';
   events: mongoose.Types.ObjectId[]; // References to Event documents
   profileStats: {
@@ -102,6 +105,18 @@ const UserSchema: Schema<User> = new mongoose.Schema({
     required: [true, 'Email is required'],
     trim: true,
     unique: true,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verifyCode: {
+    type: String,
+    required: [true, 'Verify code is required'],
+  },
+  verifyCodeExpiry: {
+    type: Date,
+    required: [true, 'Verify code expiry is required'],
   },
   theme: {
     type: String,

@@ -26,6 +26,10 @@ export const authOptions: NextAuthOptions = {
             throw new Error('No user found with this email or username');
           }
 
+          if (!user.isVerified) {
+            throw new Error('Please verify your email before signing in');
+          }
+
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
@@ -47,6 +51,7 @@ export const authOptions: NextAuthOptions = {
         token._id = user._id?.toString(); // Convert ObjectId to string
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
+        token.isVerified = user.isVerified;
         // Forward profile stats onto the token so we can expose them on the session
         // This relies on your credentials authorize() returning the full user document
         // including profileStats, which your Mongoose model provides.
@@ -61,6 +66,7 @@ export const authOptions: NextAuthOptions = {
         session.user._id = token._id;
         session.user.isAcceptingMessages = token.isAcceptingMessages;
         session.user.username = token.username;
+        session.user.isVerified = token.isVerified;
         // Expose profileStats on the session user if present
         if ((token as any).profileStats) {
           // @ts-expect-error: session user is augmented via declaration merging

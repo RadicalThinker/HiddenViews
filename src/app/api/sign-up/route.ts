@@ -1,14 +1,15 @@
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import bcrypt from 'bcryptjs';
+import { sendVerificationEmail } from '@/helpers/sendVerificationEmail';
 
 export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { username, email, password} = await request.json();
+    const { username, email, password } = await request.json();
 
-    // Check for required email
+    // Check for required fields
     if (!email) {
       return Response.json(
         {
@@ -19,57 +20,191 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingVerifiedUserByUsername = await UserModel.findOne({ username });
+    // Check if user already exists with verified email
+    const existingVerifiedUserByEmail = await UserModel.findOne({
+      email,
+      isVerified: true,
+    });
 
-    if (existingVerifiedUserByUsername) {
+    if (existingVerifiedUserByEmail) {
       return Response.json(
         {
           success: false,
-          message: 'Username is already taken',
+          message: 'User already exists with this email',
         },
         { status: 400 }
       );
     }
 
-    const existingUserByEmail = await UserModel.findOne({ email });
+    // Check if user already exists with this username
+    const existingUserByUsername = await UserModel.findOne({
+      username,
+    });
 
-    if (existingUserByEmail) {
+    if (existingUserByUsername) {
+      if (existingUserByUsername.isVerified) {
+        return Response.json(
+          {
+            success: false,
+            message: 'Username is already taken',
+          },
+          { status: 400 }
+        );
+      } else {
+        // User exists but not verified, update their details
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 1);
+
+        existingUserByUsername.email = email;
+        existingUserByUsername.password = hashedPassword;
+        existingUserByUsername.verifyCode = verifyCode;
+        existingUserByUsername.verifyCodeExpiry = expiryDate;
+
+        await existingUserByUsername.save();
+
+        // Send verification email
+        console.log('Sending verification email to existing user:', email);
+        const emailResponse = await sendVerificationEmail(
+          email,
+          username,
+          verifyCode
+        );
+
+        if (!emailResponse.success) {
+          console.error('Failed to send verification email:', emailResponse.message);
+          return Response.json(
+            {
+              success: true,
+              message: 'User registered but failed to send verification email. Please click "Resend Code" to receive your verification code.',
+              redirectUrl: `/verify/${encodeURIComponent(username)}`,
+              emailSent: false,
+            },
+            { status: 201 }
+          );
+        }
+
+        return Response.json(
+          {
+            success: true,
+            message: 'User registered successfully. Please check your email for verification code.',
+            redirectUrl: `/verify/${encodeURIComponent(username)}`,
+            emailSent: true,
+          },
+          { status: 201 }
+        );
+      }
+    }
+
+    // Check if unverified user exists with this email
+    const existingUnverifiedUserByEmail = await UserModel.findOne({
+      email,
+      isVerified: false,
+    });
+
+    if (existingUnverifiedUserByEmail) {
+      // Update existing unverified user
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiryDate = new Date();
+      expiryDate.setHours(expiryDate.getHours() + 1);
+
+      existingUnverifiedUserByEmail.username = username;
+      existingUnverifiedUserByEmail.password = hashedPassword;
+      existingUnverifiedUserByEmail.verifyCode = verifyCode;
+      existingUnverifiedUserByEmail.verifyCodeExpiry = expiryDate;
+
+      await existingUnverifiedUserByEmail.save();
+
+      // Send verification email
+      console.log('Sending verification email to existing unverified user:', email);
+      const emailResponse = await sendVerificationEmail(
+        email,
+        username,
+        verifyCode
+      );
+
+      if (!emailResponse.success) {
+        console.error('Failed to send verification email:', emailResponse.message);
+        return Response.json(
+          {
+            success: true,
+            message: 'User registered but failed to send verification email. Please click "Resend Code" to receive your verification code.',
+            redirectUrl: `/verify/${encodeURIComponent(username)}`,
+            emailSent: false,
+          },
+          { status: 201 }
+        );
+      }
+
       return Response.json(
         {
-          success: false,
-          message: 'Email is already registered',
+          success: true,
+          message: 'User registered successfully. Please check your email for verification code.',
+          redirectUrl: `/verify/${encodeURIComponent(username)}`,
+          emailSent: true,
         },
-        { status: 400 }
+        { status: 201 }
       );
     }
 
+    // Create new user
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 1);
     
     const newUser = new UserModel({
       username,
+      email,
       password: hashedPassword,
-      email, // Include email here
-      isAcceptingMessages: true,
-      messages: [],
+      verifyCode,
+      verifyCodeExpiry: expiryDate,
+      isVerified: false,
     });
 
     await newUser.save();
 
+    // Send verification email
+    console.log('Attempting to send verification email to new user:', email);
+    const emailResponse = await sendVerificationEmail(
+      email,
+      username,
+      verifyCode
+    );
+
+    console.log('Email response:', emailResponse);
+
+    if (!emailResponse.success) {
+      console.error('Failed to send verification email:', emailResponse.message);
+      
+      // Still return success but inform user about email issue
+      return Response.json(
+        {
+          success: true,
+          message: 'User registered successfully but failed to send verification email. Please click "Resend Code" to receive your verification code.',
+          redirectUrl: `/verify/${encodeURIComponent(username)}`,
+          emailSent: false,
+        },
+        { status: 201 }
+      );
+    }
+
     return Response.json(
       {
         success: true,
-        message: 'User registered successfully. Redirecting to login page.',
-        redirectUrl: '/sign-in', 
+        message: 'User registered successfully. Please check your email for verification code.',
+        redirectUrl: `/verify/${encodeURIComponent(username)}`,
+        emailSent: true,
       },
       { status: 201 }
     );
+
   } catch (error) {
     console.error('Error registering user:', error);
     return Response.json(
-      {
-        success: false,
-        message: 'Error registering user',
-      },
+      { success: false, message: 'Error registering user' },
       { status: 500 }
     );
   }

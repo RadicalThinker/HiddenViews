@@ -70,13 +70,21 @@ export default function SignUpForm() {
     try {
       const response = await axios.post<ApiResponse>('/api/sign-up', data);
 
+      // Show different messages based on email sending status
+      const emailSent = (response.data as any).emailSent !== false;
+      
       toast({
         title: 'Success',
         description: response.data.message,
+        variant: emailSent ? 'default' : 'destructive',
       });
 
-      // Redirect to the login page directly
-      router.replace('/sign-in');
+      // Redirect to the verification page
+      if ((response.data as any).redirectUrl) {
+        router.replace((response.data as any).redirectUrl);
+      } else {
+        router.replace('/sign-in');
+      }
 
       setIsSubmitting(false);
     } catch (error) {
