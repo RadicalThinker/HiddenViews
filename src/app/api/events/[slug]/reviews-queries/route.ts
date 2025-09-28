@@ -28,7 +28,7 @@ export async function GET(
     const event = await EventModel.findOne({ 
       slug, 
       createdBy: _user._id 
-    }).select('title reviews queries stats settings');
+    }).select('title description eventType slug isActive createdAt reviews queries stats settings');
 
     if (!event) {
       return NextResponse.json(
@@ -50,7 +50,13 @@ export async function GET(
       {
         success: true,
         event: {
+          _id: event._id,
           title: event.title,
+          description: event.description,
+          eventType: event.eventType,
+          slug: event.slug,
+          isActive: event.isActive,
+          createdAt: event.createdAt,
           stats: event.stats,
           settings: event.settings,
         },

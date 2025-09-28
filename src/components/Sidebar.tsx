@@ -102,10 +102,10 @@ function Sidebar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="hidden md:flex p-1 h-8 w-8"
+                      className="hidden md:flex p-1 h-8 w-8 dark:hover:text-zinc-950"
                       onClick={() => setIsCollapsed(!isCollapsed)}
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-4 h-4 dark:hover:text-zinc-950" />
                     </Button>
                   </div>
                 </div>
@@ -159,7 +159,7 @@ function Sidebar() {
             {session ? (
               <div className="space-y-3">
                 {/* User Stats (if available and not collapsed) */}
-                {user.profileStats && !isCollapsed && (
+                {/* {user.profileStats && !isCollapsed && (
                   <div className="flex items-center space-x-2 text-sm text-secondary-600 dark:text-secondary-400">
                     <StarDisplay 
                       rating={user.profileStats.averageRating || 0} 
@@ -169,7 +169,7 @@ function Sidebar() {
                     />
                     <span>({user.profileStats.totalReviews || 0})</span>
                   </div>
-                )}
+                )} */}
 
                 {/* User Menu */}
                 <DropdownMenu>

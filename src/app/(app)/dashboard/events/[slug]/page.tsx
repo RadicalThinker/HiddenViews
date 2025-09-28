@@ -104,7 +104,12 @@ export default function EventManagement() {
     try {
       const response = await axios.get(`/api/events/${slug}/reviews-queries`);
       if (response.data.success) {
-        setEvent(response.data.event);
+        // Ensure dates are properly parsed
+        const eventData = {
+          ...response.data.event,
+          createdAt: response.data.event.createdAt ? new Date(response.data.event.createdAt) : new Date()
+        };
+        setEvent(eventData);
         setReviews(response.data.reviews || []);
         setQueries(response.data.queries || []);
       }
@@ -258,10 +263,26 @@ export default function EventManagement() {
 
   // Helper function to safely format dates
   const formatSafeDate = (dateValue: any) => {
-    if (!dateValue) return 'Unknown date';
+    if (!dateValue || dateValue === null || dateValue === undefined) {
+      return 'Unknown date';
+    }
 
-    const date = new Date(dateValue);
-    if (!isValid(date)) return 'Invalid date';
+    // Handle both string and Date object inputs
+    let date: Date;
+    if (dateValue instanceof Date) {
+      date = dateValue;
+    } else if (typeof dateValue === 'string') {
+      date = new Date(dateValue);
+    } else if (typeof dateValue === 'object' && dateValue.$date) {
+      // Handle MongoDB ObjectId date format
+      date = new Date(dateValue.$date);
+    } else {
+      date = new Date(dateValue);
+    }
+    
+    if (!isValid(date)) {
+      return 'Invalid date';
+    }
 
     return formatDistanceToNow(date, { addSuffix: true });
   };
@@ -370,14 +391,6 @@ export default function EventManagement() {
       <div className="flex items-center gap-4 mb-8">
 
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <Badge className={getEventTypeColor(event.eventType)}>
-              {event.eventType}
-            </Badge>
-            {/* {!event.isActive && (
-              <Badge variant="secondary">Inactive</Badge>
-            )} */}
-          </div>
           <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
             {event.title}
           </h1>
