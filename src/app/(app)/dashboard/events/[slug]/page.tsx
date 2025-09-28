@@ -334,11 +334,41 @@ export default function EventManagement() {
     ...(filters.category === 'all' || filters.category === 'query' ? filteredQueries.map(item => ({ ...item, type: 'query' })) : [])
   ];
 
+  // Apply sorting
+  const sortedItems = [...allFilteredItems].sort((a, b) => {
+    switch (filters.sortBy) {
+      case 'newest':
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case 'oldest':
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case 'rating':
+        // Sort by rating (reviews first, then by rating descending)
+        if (a.type === 'review' && b.type === 'query') return -1;
+        if (a.type === 'query' && b.type === 'review') return 1;
+        if (a.type === 'review' && b.type === 'review') {
+          return (b as any).rating - (a as any).rating;
+        }
+        return 0;
+      case 'resolved':
+        // Sort by resolved status (queries first, resolved first)
+        if (a.type === 'query' && b.type === 'review') return -1;
+        if (a.type === 'review' && b.type === 'query') return 1;
+        if (a.type === 'query' && b.type === 'query') {
+          const aResolved = (a as any).isResolved ? 1 : 0;
+          const bResolved = (b as any).isResolved ? 1 : 0;
+          return bResolved - aResolved;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+  });
+
   // Pagination logic
-  const totalPages = Math.ceil(allFilteredItems.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedItems = allFilteredItems.slice(startIndex, endIndex);
+  const paginatedItems = sortedItems.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -556,7 +586,7 @@ export default function EventManagement() {
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <Badge variant="secondary">
-              All ({filteredReviews.length + filteredQueries.length})
+              All ({sortedItems.length})
             </Badge>
             <Badge variant="secondary">
               Reviews ({filteredReviews.length})
@@ -615,7 +645,7 @@ export default function EventManagement() {
         )}
 
         {/* Empty State */}
-        {allFilteredItems.length === 0 && (
+        {sortedItems.length === 0 && (
           <div className="text-center py-12">
             <div className="flex justify-center items-center mb-4">
               <Users className="w-12 h-12 text-secondary-400" />
