@@ -1,6 +1,6 @@
 "use client";
 import { Satisfy } from 'next/font/google'
-import React, { useState, Suspense, useMemo, useCallback } from "react";
+import React, { useState, Suspense, useMemo, useCallback, useEffect } from "react";
 import { FlipWords } from "@/components/ui/flip-words";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button"
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar } from 'react-icons/fi';
+import Lenis from '@studio-freight/lenis';
 
 // Dynamic imports for heavy components
 const DotGrid = dynamic(() => import('@/components/DotGrid'), {
@@ -214,21 +215,49 @@ FeatureCard.displayName = 'FeatureCard';
 
 export default function Home() {
   const words = useMemo(() => FLIP_WORDS, []);
+
+  // Initialize Lenis smooth scrolling
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+      autoResize: true,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   return (
-    <div className="bg-[#080808] min-h-screen">
+    <>
+      <div className="bg-[#080808] min-h-screen">
       <NavbarDemo >
       <Suspense fallback={null}>
-        <div className="absolute z-0 inset-0 h-full w-full">
+        <div className="absolute z-0 inset-0 h-[123vh] w-full">
           <DotGrid
-            dotSize={3}
-            gap={20}
+            dotSize={8}
+            gap={16}
             baseColor="#080808"
             activeColor="#5227FF"
-            proximity={40}
-            shockRadius={60}
+            proximity={56}
+            shockRadius={42}
             shockStrength={6}
-            resistance={500}
-            returnDuration={1.2}
+            resistance={360}
+            returnDuration={1.5}
           />
         </div>
       </Suspense>
@@ -365,9 +394,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+      </NavbarDemo>
+    </div>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
+    {/* Contact Section - Outside DotGrid for better performance */}
+    <div className="bg-[#080808]">
+      <section id="contact" className="py-20 px-4 md:px-12 lg:px-24">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -420,13 +452,14 @@ export default function Home() {
         </div>
       </section>
 
+      </div>
+
       {/* Footer */}
-      <footer className="text-center p-4 md:p-6 bg-bg-100 text-white relative z-20">
+      <footer className="text-center p-4 md:p-6 bg-[#080808] text-white">
         <p className="text-sm">
           © 2025 HiddenViews. Give Reviews while keeping your identity hidden.
         </p>
       </footer>
-      </NavbarDemo>
-    </div>
+    </>
   );
 }

@@ -18,17 +18,17 @@ const useResponsiveWidth = () => {
 
       // Mobile devices
       if (width < 640) {
-        baseWidth = width - 32; // 16px padding on each side
+        baseWidth = width - 64; // Reserve space for container padding (32px each side)
         itemHeight = 140;
       }
       // Tablet devices
       else if (width < 1024) {
-        baseWidth = width - 64; // 32px padding on each side
+        baseWidth = width - 96; // Reserve space for container padding (48px each side)
         itemHeight = 150;
       }
       // Desktop
       else {
-        baseWidth = Math.min(660, width - 128); // Max 660px or screen width - padding
+        baseWidth = Math.min(660, width - 128); // Max 660px or screen width - container padding (64px each side)
         itemHeight = 160;
       }
 
@@ -179,11 +179,19 @@ export default function Carousel({
   const effectiveBaseWidth = responsive ? responsiveDimensions.baseWidth : baseWidth;
   const effectiveItemHeight = responsive ? responsiveDimensions.itemHeight : itemHeight;
   
-  const containerPadding = responsive && responsiveDimensions.width < 640 ? 8 : 16;
-  const itemWidth = effectiveBaseWidth - containerPadding * 2;
+  // Calculate padding based on screen size for better mobile experience
+  const containerPadding = responsive ? (
+    responsiveDimensions.width < 640 ? 32 : // Mobile: 32px padding (matches hook calculation)
+    responsiveDimensions.width < 1024 ? 48 : // Tablet: 48px padding (matches hook calculation)
+    64 // Desktop: 64px padding (matches hook calculation)
+  ) : 32;
+  
+  // Item width is the effective base width (already calculated correctly in hook)
+  const itemWidth = effectiveBaseWidth;
   const trackItemOffset = itemWidth + GAP;
-  const controlsHeight = 48; // space for dots/navigation
-  const containerHeight = round ? effectiveBaseWidth : effectiveItemHeight + controlsHeight + containerPadding;
+  const controlsHeight = 48; // sufficient space for dots/navigation
+  const containerHeight = round ? effectiveBaseWidth : effectiveItemHeight + controlsHeight + 24; // adequate padding for dots
+  const actualContainerWidth = itemWidth + 32; // fixed padding for borders
 
   const carouselItems = loop ? [...items, items[0]] : items;
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -275,31 +283,30 @@ export default function Carousel({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden ${responsive ? 'p-2 sm:p-4' : 'p-4'} ${
+      className={`relative overflow-hidden ${
         round
-          ? "rounded-full border border-white"
-          : "rounded-[24px] border border-[#222]"
-      } ${responsive ? 'w-full max-w-4xl mx-auto' : ''}`}
-      style={responsive ? {
-        height: `${containerHeight}px`,
-      } : {
-        width: `${effectiveBaseWidth}px`,
+          ? "rounded-full border border-white p-4"
+          : "rounded-[24px] border border-[#222] py-2 px-4"
+      } ${responsive ? 'max-w-4xl mx-auto' : ''}`}
+      style={{
+        width: `${actualContainerWidth}px`,
         height: `${containerHeight}px`,
       }}
     >
-      <motion.div
-        className="flex"
-        drag="x"
-        {...dragProps}
-        style={{
-          width: itemWidth,
-          gap: `${GAP}px`,
-          perspective: 1000,
-          perspectiveOrigin: `${
-            currentIndex * trackItemOffset + itemWidth / 2
-          }px 50%`,
-          x,
-        }}
+      <div className="flex justify-center items-start pt-1">
+        <motion.div
+          className="flex"
+          drag="x"
+          {...dragProps}
+          style={{
+            width: itemWidth,
+            gap: `${GAP}px`,
+            perspective: 1000,
+            perspectiveOrigin: `${
+              currentIndex * trackItemOffset + itemWidth / 2
+            }px 50%`,
+            x,
+          }}
         onDragEnd={handleDragEnd}
         animate={{ x: -(currentIndex * trackItemOffset) }}
         transition={effectiveTransition}
@@ -318,24 +325,25 @@ export default function Carousel({
             effectiveTransition={effectiveTransition}
           />
         ))}
-      </motion.div>
+        </motion.div>
+      </div>
       <div
         className={`flex w-full justify-center ${
-          round ? "absolute z-20 bottom-12 left-1/2 -translate-x-1/2" : ""
+          round ? "absolute z-20 bottom-12 left-1/2 -translate-x-1/2" : "mt-6"
         }`}
       >
-        <div className="mt-4 flex w-[150px] justify-between px-8">
+        <div className="flex w-[150px] justify-between px-8">
           {items.map((_, index) => (
             <motion.div
               key={index}
-              className={`h-2 w-2 rounded-full cursor-pointer transition-colors duration-150 ${
+              className={`h-3 w-3 rounded-full cursor-pointer transition-colors duration-150 ${
                 currentIndex % items.length === index
                   ? round
                     ? "bg-white"
-                    : "bg-[#333333]"
+                    : "bg-[#5227FF]"
                   : round
                   ? "bg-[#555]"
-                  : "bg-[rgba(51,51,51,0.4)]"
+                  : "bg-[rgba(255,255,255,0.3)]"
               }`}
               animate={{
                 scale: currentIndex % items.length === index ? 1.2 : 1,
