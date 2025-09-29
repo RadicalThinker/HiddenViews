@@ -1,24 +1,27 @@
 "use client";
 import { Satisfy } from 'next/font/google'
-import React, { useState } from "react";
+import React, { useState, Suspense, useMemo, useCallback } from "react";
 import { FlipWords } from "@/components/ui/flip-words";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button"
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Autoplay from "embla-carousel-autoplay";
-import DotGrid from "@/components/DotGrid";
-import {
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import Carousel from "@/components/Carousel";
+import dynamic from 'next/dynamic';
 import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar } from 'react-icons/fi';
-import { NavbarDemo } from '@/components/NavbarDemo';
+
+// Dynamic imports for heavy components
+const DotGrid = dynamic(() => import('@/components/DotGrid'), {
+  ssr: false,
+  loading: () => null
+});
+const Carousel = dynamic(() => import('@/components/Carousel'), {
+  ssr: false,
+  loading: () => <div className="w-full h-40 bg-gray-900/20 rounded-lg animate-pulse" />
+});
+const NavbarDemo = dynamic(() => import('@/components/NavbarDemo').then(mod => ({ default: mod.NavbarDemo })), {
+  ssr: false,
+  loading: () => null
+});
 
 
 // Configure Satisfy font
@@ -28,7 +31,7 @@ const satisfy = Satisfy({
 })
 
 // Contact Form Component
-function ContactForm() {
+const ContactForm = React.memo(function ContactForm() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -156,27 +159,79 @@ function ContactForm() {
       </form>
     </div>
   );
-}
+});
+
+// Memoize static data to prevent recreating arrays on each render
+const FLIP_WORDS = ["Anonymous", "Honest", "Hidden"];
+
+const FEATURES_DATA = [
+  {
+    icon: FiEyeOff,
+    title: "Complete Anonymity",
+    description: "Your identity remains completely hidden. No tracking, no logs, just pure anonymous feedback."
+  },
+  {
+    icon: FiShield,
+    title: "Privacy First",
+    description: "End-to-end encryption ensures your messages are secure and private from start to finish."
+  },
+  {
+    icon: FiMessageCircle,
+    title: "Honest Feedback", 
+    description: "Get genuine, unfiltered opinions that help you grow and improve without bias."
+  },
+  {
+    icon: FiZap,
+    title: "Instant Delivery",
+    description: "Messages are delivered instantly with real-time notifications and updates."
+  },
+  {
+    icon: FiUsers,
+    title: "Team Collaboration",
+    description: "Share your profile with teams, colleagues, or friends to gather collective feedback."
+  },
+  {
+    icon: FiStar,
+    title: "Easy to Use",
+    description: "Simple, intuitive interface that anyone can use without technical knowledge."
+  }
+];
+
+// Memoized Feature Card component
+const FeatureCard = React.memo(({ icon: Icon, title, description }: { 
+  icon: React.ComponentType<any>, 
+  title: string, 
+  description: string 
+}) => (
+  <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
+    <Icon className="w-12 h-12 text-[#5227FF] mb-4" />
+    <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
+    <p className="text-gray-400">{description}</p>
+  </div>
+));
+
+FeatureCard.displayName = 'FeatureCard';
 
 export default function Home() {
-
-   const words = ["Anonymous", "Honest" , "Hidden"];
+  const words = useMemo(() => FLIP_WORDS, []);
   return (
     <div className="bg-[#080808] min-h-screen">
       <NavbarDemo >
-      <div className="absolute z-0 inset-0 h-full w-full">
-        <DotGrid
-          dotSize={4}
-          gap={15}
-          baseColor="#080808"
-          activeColor="#5227FF"
-          proximity={60}
-          shockRadius={80}
-          shockStrength={8}
-          resistance={750}
-          returnDuration={1.5}
-        />
-      </div>
+      <Suspense fallback={null}>
+        <div className="absolute z-0 inset-0 h-full w-full">
+          <DotGrid
+            dotSize={3}
+            gap={20}
+            baseColor="#080808"
+            activeColor="#5227FF"
+            proximity={40}
+            shockRadius={60}
+            shockStrength={6}
+            resistance={500}
+            returnDuration={1.2}
+          />
+        </div>
+      </Suspense>
 
       {/* Main content */}
       <main className="flex-grow min-h-screen flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 py-12  text-white relative z-1">
@@ -210,19 +265,22 @@ export default function Home() {
         </div>
 
         {/* Carousel for Messages */}
-        <Carousel
-          baseWidth={660}
-          autoplay={true}
-          autoplayDelay={3000}
-          pauseOnHover={true}
-          loop={true}
-          round={false}
-          itemHeight={160}
-        />
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Carousel
+            autoplay={true}
+            autoplayDelay={3000}
+            pauseOnHover={true}
+            loop={true}
+            round={false}
+            itemHeight={160}
+            responsive={true}
+          />
+        </div>
       </main>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
+      {/* Features Section - Lazy loaded */}
+      <Suspense fallback={<div className="py-20 px-4 md:px-12 lg:px-24 relative z-10 animate-pulse bg-gray-900/20 rounded-lg" />}>
+        <section id="features" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -234,56 +292,18 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-              <FiEyeOff className="w-12 h-12 text-[#5227FF] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">Complete Anonymity</h3>
-              <p className="text-gray-400">
-                Your identity remains completely hidden. No tracking, no logs, just pure anonymous feedback.
-              </p>
-            </div>
-            
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-              <FiShield className="w-12 h-12 text-[#5227FF] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">Privacy First</h3>
-              <p className="text-gray-400">
-                End-to-end encryption ensures your messages are secure and private from start to finish.
-              </p>
-            </div>
-            
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-              <FiMessageCircle className="w-12 h-12 text-[#5227FF] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">Honest Feedback</h3>
-              <p className="text-gray-400">
-                Get genuine, unfiltered opinions that help you grow and improve without bias.
-              </p>
-            </div>
-            
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-              <FiZap className="w-12 h-12 text-[#5227FF] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">Instant Delivery</h3>
-              <p className="text-gray-400">
-                Messages are delivered instantly with real-time notifications and updates.
-              </p>
-            </div>
-            
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-              <FiUsers className="w-12 h-12 text-[#5227FF] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">Team Collaboration</h3>
-              <p className="text-gray-400">
-                Share your profile with teams, colleagues, or friends to gather collective feedback.
-              </p>
-            </div>
-            
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-              <FiStar className="w-12 h-12 text-[#5227FF] mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-3">Easy to Use</h3>
-              <p className="text-gray-400">
-                Simple, intuitive interface that anyone can use without technical knowledge.
-              </p>
-            </div>
+            {FEATURES_DATA.slice(0, 6).map((feature, index) => (
+              <FeatureCard
+                key={index}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+              />
+            ))}
           </div>
         </div>
-      </section>
+        </section>
+      </Suspense>
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">

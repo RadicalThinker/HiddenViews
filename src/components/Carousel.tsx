@@ -2,6 +2,49 @@ import { useEffect, useState, useRef } from "react";
 import { motion, PanInfo, useMotionValue, useTransform } from "motion/react";
 import React, { JSX } from "react";
 
+// Custom hook for responsive design
+const useResponsiveWidth = () => {
+  const [dimensions, setDimensions] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+    baseWidth: 660,
+    itemHeight: 160
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      let baseWidth = 660;
+      let itemHeight = 160;
+
+      // Mobile devices
+      if (width < 640) {
+        baseWidth = width - 32; // 16px padding on each side
+        itemHeight = 140;
+      }
+      // Tablet devices
+      else if (width < 1024) {
+        baseWidth = width - 64; // 32px padding on each side
+        itemHeight = 150;
+      }
+      // Desktop
+      else {
+        baseWidth = Math.min(660, width - 128); // Max 660px or screen width - padding
+        itemHeight = 160;
+      }
+
+      setDimensions({ width, baseWidth, itemHeight });
+    };
+
+    if (typeof window !== 'undefined') {
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  return dimensions;
+};
+
 // replace icons with your own if needed
 import {
   FiCircle,
@@ -26,6 +69,7 @@ export interface CarouselProps {
   pauseOnHover?: boolean;
   loop?: boolean;
   round?: boolean;
+  responsive?: boolean;
 }
 
 interface CarouselItemProps {
@@ -72,9 +116,9 @@ const CarouselItem: React.FC<CarouselItemProps> = ({
       }}
       transition={effectiveTransition}
     >
-      <div className="p-5">
-        <p className="text-xl text-white mb-3">{item.description}</p>
-        <p className="text-md text-text-200/60">{item.icon}</p>
+      <div className="p-3 sm:p-4 md:p-5">
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white mb-2 sm:mb-3 leading-relaxed">{item.description}</p>
+        <p className="text-xs sm:text-sm md:text-md text-text-200/60">{item.icon}</p>
       </div>
     </motion.div>
   );
@@ -127,12 +171,19 @@ export default function Carousel({
   pauseOnHover = false,
   loop = false,
   round = false,
+  responsive = false,
 }: CarouselProps): JSX.Element {
-  const containerPadding = 16;
-  const itemWidth = baseWidth - containerPadding * 2;
+  const responsiveDimensions = useResponsiveWidth();
+  
+  // Use responsive dimensions if responsive prop is true, otherwise use provided values
+  const effectiveBaseWidth = responsive ? responsiveDimensions.baseWidth : baseWidth;
+  const effectiveItemHeight = responsive ? responsiveDimensions.itemHeight : itemHeight;
+  
+  const containerPadding = responsive && responsiveDimensions.width < 640 ? 8 : 16;
+  const itemWidth = effectiveBaseWidth - containerPadding * 2;
   const trackItemOffset = itemWidth + GAP;
   const controlsHeight = 48; // space for dots/navigation
-  const containerHeight = round ? baseWidth : itemHeight + controlsHeight + containerPadding;
+  const containerHeight = round ? effectiveBaseWidth : effectiveItemHeight + controlsHeight + containerPadding;
 
   const carouselItems = loop ? [...items, items[0]] : items;
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -224,13 +275,15 @@ export default function Carousel({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden p-4 ${
+      className={`relative overflow-hidden ${responsive ? 'p-2 sm:p-4' : 'p-4'} ${
         round
           ? "rounded-full border border-white"
           : "rounded-[24px] border border-[#222]"
-      }`}
-      style={{
-        width: `${baseWidth}px`,
+      } ${responsive ? 'w-full max-w-4xl mx-auto' : ''}`}
+      style={responsive ? {
+        height: `${containerHeight}px`,
+      } : {
+        width: `${effectiveBaseWidth}px`,
         height: `${containerHeight}px`,
       }}
     >
@@ -260,7 +313,7 @@ export default function Carousel({
             x={x}
             trackItemOffset={trackItemOffset}
             itemWidth={itemWidth}
-            itemHeight={itemHeight}
+            itemHeight={effectiveItemHeight}
             round={round}
             effectiveTransition={effectiveTransition}
           />
