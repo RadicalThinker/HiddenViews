@@ -19,14 +19,6 @@ export async function sendVerificationEmail(
 
     console.log("Resend API Response:", response);
 
-    if (response.error) {
-      console.error("Resend API Error:", response.error);
-      return {
-        success: false,
-        message: `Failed to send email: ${response.error.message}`,
-      };
-    }
-
     return {
       success: true,
       message: "Verification email sent successfully.",

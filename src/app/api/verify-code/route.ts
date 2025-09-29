@@ -26,27 +26,36 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if verification code is correct
-    if (user.verifyCode !== code) {
-      return Response.json(
-        { success: false, message: 'Invalid verification code' },
-        { status: 400 }
-      );
-    }
+    // Development mode: Accept dummy OTP
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isDummyCode = code === '123456';
+    
+    if (isDevelopment && isDummyCode) {
+      // Skip verification checks for dummy code in development
+      console.log('🔧 Development mode: Using dummy OTP 123456');
+    } else {
+      // Check if verification code is correct
+      if (user.verifyCode !== code) {
+        return Response.json(
+          { success: false, message: 'Invalid verification code' },
+          { status: 400 }
+        );
+      }
 
-    // Check if verification code has expired
-    const currentTime = new Date();
-    if (currentTime > user.verifyCodeExpiry) {
-      return Response.json(
-        { success: false, message: 'Verification code has expired' },
-        { status: 400 }
-      );
+      // Check if verification code has expired
+      const currentTime = new Date();
+      if (currentTime > user.verifyCodeExpiry) {
+        return Response.json(
+          { success: false, message: 'Verification code has expired' },
+          { status: 400 }
+        );
+      }
     }
 
     // Verify the user
     user.isVerified = true;
     // Clear verification code and expiry for security
-    user.verifyCode = '';
+    user.verifyCode = 'VERIFIED';
     user.verifyCodeExpiry = new Date();
 
     await user.save();

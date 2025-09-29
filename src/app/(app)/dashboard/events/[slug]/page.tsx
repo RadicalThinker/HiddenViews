@@ -399,7 +399,7 @@ export default function EventManagement() {
             Event Not Found
           </h1>
           <p className="text-secondary-600 dark:text-secondary-400 mb-6">
-            The event you're looking for doesn't exist or you don't have access to it.
+            The event you&apos;re looking for doesn&apos;t exist or you don&apos;t have access to it.
           </p>
           <Link href="/dashboard">
             <Button>Back to Events</Button>

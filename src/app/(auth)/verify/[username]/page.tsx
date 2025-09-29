@@ -72,9 +72,19 @@ export default function VerifyAccount() {
             Verify Your Account
           </h1>
           <p className="mb-4 text-text-200/80">
-            We've sent a verification code to your email address for{' '}
+            We&apos;ve sent a verification code to your email address for{' '}
             <span className="font-semibold">{decodeURIComponent(params.username)}</span>
           </p>
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-800">
+                <strong>Development Mode:</strong> You can use dummy OTP{' '}
+                <code className="bg-yellow-100 px-2 py-1 rounded text-yellow-900 font-mono">
+                  123456
+                </code>
+              </p>
+            </div>
+          )}
         </div>
         
         <Form {...form}>
@@ -110,7 +120,7 @@ export default function VerifyAccount() {
 
         <div className="text-center">
           <p className="text-sm text-text-200/60">
-            Didn't receive the code?{' '}
+            Didn&apos;t receive the code?{' '}
             <button
               onClick={async () => {
                 try {

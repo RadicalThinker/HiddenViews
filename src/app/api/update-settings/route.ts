@@ -19,7 +19,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const { isAcceptingReviews, isAcceptingQueries, theme } = await request.json();
+    const { isAcceptingMessages, theme } = await request.json();
     const userId = _user._id;
 
     const user = await UserModel.findById(userId);
@@ -31,11 +31,8 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update settings
-    if (typeof isAcceptingReviews === 'boolean') {
-      user.isAcceptingReviews = isAcceptingReviews;
-    }
-    if (typeof isAcceptingQueries === 'boolean') {
-      user.isAcceptingQueries = isAcceptingQueries;
+    if (typeof isAcceptingMessages === 'boolean') {
+      user.isAcceptingMessages = isAcceptingMessages;
     }
     if (theme && ['light', 'dark', 'system'].includes(theme)) {
       user.theme = theme;
@@ -48,8 +45,7 @@ export async function PATCH(request: NextRequest) {
         success: true, 
         message: 'Settings updated successfully',
         settings: {
-          isAcceptingReviews: user.isAcceptingReviews,
-          isAcceptingQueries: user.isAcceptingQueries,
+          isAcceptingMessages: user.isAcceptingMessages,
           theme: user.theme,
         }
       },

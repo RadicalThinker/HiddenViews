@@ -56,7 +56,7 @@ export async function POST(
     }
 
     // Find the specific query
-    const query = event.queries.id(queryId);
+    const query = event.queries.find((q: any) => q._id.toString() === queryId);
     if (!query) {
       return NextResponse.json(
         { success: false, message: 'Query not found' },

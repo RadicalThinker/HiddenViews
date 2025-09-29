@@ -56,7 +56,6 @@ export const authOptions: NextAuthOptions = {
         // This relies on your credentials authorize() returning the full user document
         // including profileStats, which your Mongoose model provides.
         // Marked optional in type augmentation.
-        // @ts-expect-error: runtime field carried via JWT
         token.profileStats = (user as any).profileStats;
       }
       return token;
@@ -69,7 +68,6 @@ export const authOptions: NextAuthOptions = {
         session.user.isVerified = token.isVerified;
         // Expose profileStats on the session user if present
         if ((token as any).profileStats) {
-          // @ts-expect-error: session user is augmented via declaration merging
           session.user.profileStats = (token as any).profileStats;
         }
       }

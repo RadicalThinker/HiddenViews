@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import EventModel from '@/model/Event';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -30,12 +31,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Get all events created by the user
+    const userEvents = await EventModel.find({ createdBy: user._id });
+
+    // Collect all reviews and queries from the user's events
+    let allReviews: any[] = [];
+    let allQueries: any[] = [];
+
+    userEvents.forEach(event => {
+      allReviews.push(...event.reviews);
+      allQueries.push(...event.queries);
+    });
+
     // Sort reviews and queries by creation date (newest first)
-    const sortedReviews = user.reviews.sort((a: any, b: any) => 
+    const sortedReviews = allReviews.sort((a: any, b: any) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    const sortedQueries = user.queries.sort((a: any, b: any) => 
+    const sortedQueries = allQueries.sort((a: any, b: any) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 

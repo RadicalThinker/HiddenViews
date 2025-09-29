@@ -70,6 +70,11 @@ const QuerySchema: Schema<Query> = new mongoose.Schema({
   },
 });
 
+export interface Message extends Document {
+  content: string;
+  createdAt: Date;
+}
+
 export interface User extends Document {
   username: string;
   password: string;
@@ -77,8 +82,10 @@ export interface User extends Document {
   isVerified: boolean;
   verifyCode: string;
   verifyCodeExpiry: Date;
+  isAcceptingMessages: boolean;
   theme: 'light' | 'dark' | 'system';
   events: mongoose.Types.ObjectId[]; // References to Event documents
+  messages: Message[];
   profileStats: {
     totalEvents: number;
     totalReviews: number;
@@ -118,6 +125,10 @@ const UserSchema: Schema<User> = new mongoose.Schema({
     type: Date,
     required: [true, 'Verify code expiry is required'],
   },
+  isAcceptingMessages: {
+    type: Boolean,
+    default: true,
+  },
   theme: {
     type: String,
     enum: ['light', 'dark', 'system'],
@@ -126,6 +137,10 @@ const UserSchema: Schema<User> = new mongoose.Schema({
   events: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Event',
+  }],
+  messages: [{
+    content: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
   }],
   profileStats: {
     totalEvents: { type: Number, default: 0 },

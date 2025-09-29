@@ -252,7 +252,7 @@ export default function ProfilePage() {
         {/* Basic Info */}
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100 text-balance">{userName}</h1>
-          <p className="text-secondary-600 dark:text-secondary-300 mt-1">Welcome back! Here's your profile overview.</p>
+          <p className="text-secondary-600 dark:text-secondary-300 mt-1">Welcome back! Here&apos;s your profile overview.</p>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
@@ -396,7 +396,7 @@ export default function ProfilePage() {
               </div>
             </div>
           ) : (
-            <p className="text-secondary-600 dark:text-secondary-400">No report yet. Click "Regenerate Report" to generate a summary of your reviews.</p>
+            <p className="text-secondary-600 dark:text-secondary-400">No report yet. Click &quot;Regenerate Report&quot; to generate a summary of your reviews.</p>
           )}
         </CardContent>
       </Card>

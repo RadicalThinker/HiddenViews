@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import EventModel from '@/model/Event';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -33,21 +34,39 @@ export async function DELETE(
       );
     }
 
-    // Find and remove the query
-    const queryIndex = user.queries.findIndex((query: any) => query._id.toString() === queryId);
-    if (queryIndex === -1) {
+    // Find the event containing this query
+    const event = await EventModel.findOne({
+      createdBy: user._id,
+      'queries._id': queryId
+    });
+
+    if (!event) {
       return NextResponse.json(
         { success: false, message: 'Query not found' },
         { status: 404 }
       );
     }
 
-    user.queries.splice(queryIndex, 1);
+    // Remove the query from the event
+    event.queries = event.queries.filter((query: any) => query._id.toString() !== queryId);
 
-    // Recalculate profile stats
-    user.profileStats.totalQueries = user.queries.length;
-    user.profileStats.resolvedQueries = user.queries.filter((q: any) => q.isResolved).length;
+    // Update event stats
+    event.stats.totalQueries = event.queries.length;
+    event.stats.resolvedQueries = event.queries.filter((q: any) => q.isResolved).length;
 
+    await event.save();
+
+    // Update user profile stats by recalculating from all events
+    const userEvents = await EventModel.find({ createdBy: user._id });
+    let totalQueries = 0;
+    let resolvedQueries = 0;
+
+    userEvents.forEach((evt: any) => {
+      totalQueries += evt.queries.length;
+      resolvedQueries += evt.queries.filter((q: any) => q.isResolved).length;
+    });
+
+    user.profileStats.totalQueries = totalQueries;
     await user.save();
 
     return NextResponse.json(

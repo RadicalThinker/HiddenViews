@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -123,7 +123,7 @@ export default function EventPage() {
   const queryContent = queryForm.watch('content');
 
   // Fetch event data
-  const fetchEventData = async () => {
+  const fetchEventData = useCallback(async () => {
     try {
       const response = await axios.get(`/api/events/${slug}`);
       if (response.data.success) {
@@ -139,7 +139,18 @@ export default function EventPage() {
     } finally {
       setIsLoadingEvent(false);
     }
-  };
+  }, [slug]);
+
+  const initializeTheme = useCallback(() => {
+    const savedTheme = localStorage.getItem('anonymous-theme') as 'light' | 'dark' | 'system' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    } else {
+      setTheme('system');
+      applyTheme('system');
+    }
+  }, []);
 
   useEffect(() => {
     fetchEventData();
@@ -155,18 +166,7 @@ export default function EventPage() {
     
     mediaQuery.addEventListener('change', handleSystemThemeChange);
     return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
-  }, [slug, theme]);
-
-  const initializeTheme = () => {
-    const savedTheme = localStorage.getItem('anonymous-theme') as 'light' | 'dark' | 'system' | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      setTheme('system');
-      applyTheme('system');
-    }
-  };
+  }, [slug, theme, fetchEventData, initializeTheme]);
 
   const applyTheme = (newTheme: 'light' | 'dark' | 'system') => {
     const root = window.document.documentElement;
@@ -339,7 +339,7 @@ export default function EventPage() {
             Event Not Found
           </h1>
           <p className="text-secondary-600 dark:text-secondary-400 mb-6">
-            The event you're looking for doesn't exist or is no longer available.
+            The event you&apos;re looking for doesn&apos;t exist or is no longer available.
           </p>
           <Link href="/">
             <Button>Go Home</Button>
@@ -558,7 +558,7 @@ export default function EventPage() {
             {eventData.settings.isAcceptingQueries ? (
               <Form {...queryForm}>
                 <form onSubmit={queryForm.handleSubmit(onSubmitQuery)} className="space-y-6">
-                  <FormField
+                  {/* <FormField
                     control={queryForm.control}
                     name="category"
                     render={({ field }) => (
@@ -580,7 +580,7 @@ export default function EventPage() {
                         <FormMessage />
                       </FormItem>
                     )}
-                  />
+                  /> */}
 
                   <FormField
                     control={queryForm.control}

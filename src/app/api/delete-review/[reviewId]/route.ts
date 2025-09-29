@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import EventModel from '@/model/Event';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -33,21 +34,39 @@ export async function DELETE(
       );
     }
 
-    // Find and remove the review
-    const reviewIndex = user.reviews.findIndex((review: any) => review._id.toString() === reviewId);
-    if (reviewIndex === -1) {
+    // Find the event containing the review
+    const event = await EventModel.findOne({
+      createdBy: user._id,
+      'reviews._id': reviewId
+    });
+
+    if (!event) {
       return NextResponse.json(
         { success: false, message: 'Review not found' },
         { status: 404 }
       );
     }
 
-    user.reviews.splice(reviewIndex, 1);
+    // Remove the review
+    event.reviews = event.reviews.filter((review: any) => 
+      review._id.toString() !== reviewId
+    );
+
+    await event.save();
 
     // Recalculate profile stats
-    const totalReviews = user.reviews.length;
+    const userEvents = await EventModel.find({ createdBy: user._id });
+    let totalReviews = 0;
+    let totalRating = 0;
+
+    userEvents.forEach(event => {
+      totalReviews += event.reviews.length;
+      event.reviews.forEach((review: any) => {
+        totalRating += review.rating;
+      });
+    });
+
     if (totalReviews > 0) {
-      const totalRating = user.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
       user.profileStats.averageRating = totalRating / totalReviews;
     } else {
       user.profileStats.averageRating = 0;

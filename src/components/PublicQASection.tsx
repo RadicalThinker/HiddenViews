@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { MessageSquare, Reply, Clock, CheckCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -29,11 +29,7 @@ export function PublicQASection({ eventSlug }: PublicQASectionProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
 
-  useEffect(() => {
-    fetchPublicQueries()
-  }, [eventSlug])
-
-  const fetchPublicQueries = async () => {
+  const fetchPublicQueries = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await fetch(`/api/public-queries/${eventSlug}`)
@@ -50,7 +46,11 @@ export function PublicQASection({ eventSlug }: PublicQASectionProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [eventSlug])
+
+  useEffect(() => {
+    fetchPublicQueries()
+  }, [fetchPublicQueries])
 
   const getCategoryColor = (category?: string) => {
     switch (category) {

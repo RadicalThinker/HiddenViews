@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import EventModel from '@/model/Event';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -33,8 +34,21 @@ export async function PATCH(
       );
     }
 
-    // Find the query by ID
-    const query = user.queries.id(queryId);
+    // Find the event containing the query
+    const event = await EventModel.findOne({
+      createdBy: user._id,
+      'queries._id': queryId
+    });
+
+    if (!event) {
+      return NextResponse.json(
+        { success: false, message: 'Query not found' },
+        { status: 404 }
+      );
+    }
+
+    // Find the specific query
+    const query = event.queries.find((q: any) => q._id.toString() === queryId);
     if (!query) {
       return NextResponse.json(
         { success: false, message: 'Query not found' },
@@ -45,10 +59,9 @@ export async function PATCH(
     // Toggle resolved status
     query.isResolved = !query.isResolved;
 
-    // Update resolved queries count
-    user.profileStats.resolvedQueries = user.queries.filter((q: any) => q.isResolved).length;
+    await event.save();
 
-    await user.save();
+    // No need to update user stats as resolvedQueries is not part of the schema
 
     return NextResponse.json(
       { 

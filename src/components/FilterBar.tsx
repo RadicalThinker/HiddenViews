@@ -133,7 +133,7 @@ export function FilterBar({ filters, onFiltersChange, reviewCount, queryCount }:
         )}
 
         {/* Query Category Filter (only for queries) */}
-        {filters.category !== 'review' && (
+        {/* {filters.category !== 'review' && (
           <Select
             value={filters.queryCategory || 'all'}
             onValueChange={(value) => updateFilter('queryCategory', value === 'all' ? null : value)}
@@ -149,7 +149,7 @@ export function FilterBar({ filters, onFiltersChange, reviewCount, queryCount }:
               <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
-        )}
+        )} */}
 
         {/* Sort By */}
         <Select
@@ -198,7 +198,7 @@ export function FilterBar({ filters, onFiltersChange, reviewCount, queryCount }:
         <div className="flex flex-wrap gap-2">
           {filters.search && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Search: "{filters.search}"
+              Search: &quot;{filters.search}&quot;
               <X 
                 className="w-3 h-3 cursor-pointer" 
                 onClick={() => updateFilter('search', '')}

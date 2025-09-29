@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
-import messages from "@/messages.json";
 import DotGrid from "@/components/DotGrid";
 import {
   CarouselContent,
@@ -355,7 +354,7 @@ export default function Home() {
               Get in Touch
             </h2>
             <p className="text-lg text-gray-300">
-              Have questions? We'd love to hear from you.
+              Have questions? We&apos;d love to hear from you.
             </p>
           </div>
           

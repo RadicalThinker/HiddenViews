@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import EventModel from '@/model/Event';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
   const userId = _user._id;
 
   try {
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findById(userId).populate('events');
 
     if (!user) {
       return NextResponse.json(
@@ -33,8 +34,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Collect all reviews from user's events
+    const allReviews: any[] = [];
+    if (user.events && Array.isArray(user.events)) {
+      for (const event of user.events as any[]) {
+        if (event.reviews && Array.isArray(event.reviews)) {
+          allReviews.push(...event.reviews);
+        }
+      }
+    }
+
     // If no reviews, return basic stats
-    if (user.reviews.length === 0) {
+    if (allReviews.length === 0) {
       return NextResponse.json({
         success: true,
         analytics: {
@@ -51,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Prepare review data for AI analysis
-    const reviewTexts = user.reviews.map((review: any) => ({
+    const reviewTexts = allReviews.map((review: any) => ({
       content: review.content,
       rating: review.rating,
       date: review.createdAt
@@ -110,7 +121,7 @@ export async function GET(request: NextRequest) {
         sentimentScore: (user.profileStats.averageRating - 3) / 2,
         keyThemes: ['General feedback'],
         improvementSuggestions: ['Continue engaging with your audience'],
-        summary: `Based on ${user.reviews.length} reviews with an average rating of ${user.profileStats.averageRating.toFixed(1)} stars.`,
+        summary: `Based on ${allReviews.length} reviews with an average rating of ${user.profileStats.averageRating.toFixed(1)} stars.`,
         monthlyTrend: 'stable',
         strongPoints: ['Consistent engagement'],
         weakPoints: ['More data needed for detailed analysis'],
@@ -119,11 +130,11 @@ export async function GET(request: NextRequest) {
 
     // Add some computed metrics
     const ratingDistribution = {
-      5: user.reviews.filter((r: any) => r.rating === 5).length,
-      4: user.reviews.filter((r: any) => r.rating === 4).length,
-      3: user.reviews.filter((r: any) => r.rating === 3).length,
-      2: user.reviews.filter((r: any) => r.rating === 2).length,
-      1: user.reviews.filter((r: any) => r.rating === 1).length,
+      5: allReviews.filter((r: any) => r.rating === 5).length,
+      4: allReviews.filter((r: any) => r.rating === 4).length,
+      3: allReviews.filter((r: any) => r.rating === 3).length,
+      2: allReviews.filter((r: any) => r.rating === 2).length,
+      1: allReviews.filter((r: any) => r.rating === 1).length,
     };
 
     return NextResponse.json({
@@ -131,7 +142,7 @@ export async function GET(request: NextRequest) {
       analytics: {
         ...analytics,
         ratingDistribution,
-        totalReviews: user.reviews.length,
+        totalReviews: allReviews.length,
         averageRating: user.profileStats.averageRating,
         lastUpdated: new Date().toISOString(),
       }

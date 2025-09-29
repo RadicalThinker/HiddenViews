@@ -28,6 +28,58 @@ export interface CarouselProps {
   round?: boolean;
 }
 
+interface CarouselItemProps {
+  item: CarouselItem;
+  index: number;
+  x: any;
+  trackItemOffset: number;
+  itemWidth: number;
+  itemHeight: number;
+  round: boolean;
+  effectiveTransition: any;
+}
+
+const CarouselItem: React.FC<CarouselItemProps> = ({
+  item,
+  index,
+  x,
+  trackItemOffset,
+  itemWidth,
+  itemHeight,
+  round,
+  effectiveTransition,
+}) => {
+  const range = [
+    -(index + 1) * trackItemOffset,
+    -index * trackItemOffset,
+    -(index - 1) * trackItemOffset,
+  ];
+  const outputRange = [90, 0, -90];
+  const rotateY = useTransform(x, range, outputRange, { clamp: false });
+
+  return (
+    <motion.div
+      className={`relative shrink-0 flex flex-col ${
+        round
+          ? "items-center justify-center text-center bg-[#060010] border-0"
+          : "items-start justify-between bg-[#222] border border-[#222] rounded-[12px]"
+      } overflow-hidden cursor-grab active:cursor-grabbing`}
+      style={{
+        width: itemWidth,
+        height: round ? itemWidth : `${itemHeight}px`,
+        rotateY: rotateY,
+        ...(round && { borderRadius: "50%" }),
+      }}
+      transition={effectiveTransition}
+    >
+      <div className="p-5">
+        <p className="text-xl text-white mb-3">{item.description}</p>
+        <p className="text-md text-text-200/60">{item.icon}</p>
+      </div>
+    </motion.div>
+  );
+};
+
 const DEFAULT_ITEMS: CarouselItem[] = [
   {
     title: "Message from Student27",
@@ -64,7 +116,7 @@ const DEFAULT_ITEMS: CarouselItem[] = [
 const DRAG_BUFFER = 0;
 const VELOCITY_THRESHOLD = 500;
 const GAP = 16;
-const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
+const SPRING_OPTIONS = { type: "spring" as const, stiffness: 300, damping: 30 };
 
 export default function Carousel({
   items = DEFAULT_ITEMS,
@@ -200,45 +252,19 @@ export default function Carousel({
         transition={effectiveTransition}
         onAnimationComplete={handleAnimationComplete}
       >
-        {carouselItems.map((item, index) => {
-          const range = [
-            -(index + 1) * trackItemOffset,
-            -index * trackItemOffset,
-            -(index - 1) * trackItemOffset,
-          ];
-          const outputRange = [90, 0, -90];
-          const rotateY = useTransform(x, range, outputRange, { clamp: false });
-          return (
-            <motion.div
-              key={index}
-              className={`relative shrink-0 flex flex-col ${
-                round
-                  ? "items-center justify-center text-center bg-[#060010] border-0"
-                  : "items-start justify-between bg-[#222] border border-[#222] rounded-[12px]"
-              } overflow-hidden cursor-grab active:cursor-grabbing`}
-              style={{
-                width: itemWidth,
-                height: round ? itemWidth : `${itemHeight}px`,
-                rotateY: rotateY,
-                ...(round && { borderRadius: "50%" }),
-              }}
-              transition={effectiveTransition}
-            >
-              <div className="p-5">
-                {/* <div className="mb-1 font-black text-xl text-white"> */}
-                  {/* {item.title} */}
-                {/* </div> */}
-                <p className="text-xl text-white mb-3">{item.description}</p>
-                <p className="text-md text-text-200/60">{item.icon}</p>
-              </div>
-              {/* <div > */}
-                {/* <span className="flex items-center justify-center rounded-full bg-[#060010]">
-                  {item.icon}
-                </span> */}
-              {/* </div> */}
-            </motion.div>
-          );
-        })}
+        {carouselItems.map((item, index) => (
+          <CarouselItem
+            key={index}
+            item={item}
+            index={index}
+            x={x}
+            trackItemOffset={trackItemOffset}
+            itemWidth={itemWidth}
+            itemHeight={itemHeight}
+            round={round}
+            effectiveTransition={effectiveTransition}
+          />
+        ))}
       </motion.div>
       <div
         className={`flex w-full justify-center ${

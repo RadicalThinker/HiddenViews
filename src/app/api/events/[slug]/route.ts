@@ -120,6 +120,13 @@ export async function PATCH(
       { new: true }
     ).select('settings updatedAt');
 
+    if (!updatedEvent) {
+      return NextResponse.json(
+        { success: false, message: 'Event not found' },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,

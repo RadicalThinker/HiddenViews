@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -40,7 +40,7 @@ export function AIAnalyticsDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { toast } = useToast()
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const response = await axios.get('/api/ai-analytics')
       if (response.data.success) {
@@ -59,7 +59,7 @@ export function AIAnalyticsDashboard() {
       setIsLoading(false)
       setIsRefreshing(false)
     }
-  }
+  }, [toast])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -68,7 +68,7 @@ export function AIAnalyticsDashboard() {
 
   useEffect(() => {
     fetchAnalytics()
-  }, [])
+  }, [fetchAnalytics])
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
