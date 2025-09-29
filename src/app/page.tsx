@@ -401,7 +401,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="text-center p-4 md:p-6 bg-bg-100 text-white">
+      <footer className="text-center p-4 md:p-6 bg-bg-100 text-white relative z-20">
         <p className="text-sm">
           © 2025 HiddenViews. Give Reviews while keeping your identity hidden.
         </p>
