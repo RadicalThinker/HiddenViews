@@ -247,7 +247,7 @@ export default function Home() {
       <div className="bg-[#080808] min-h-screen">
       <NavbarDemo >
       <Suspense fallback={null}>
-        <div className="absolute z-0 inset-0 h-[123vh] w-full">
+        <div className="absolute z-0 inset-0 h-[123vh] w-full hidden md:block">
           <DotGrid
             dotSize={8}
             gap={16}
@@ -294,7 +294,7 @@ export default function Home() {
         </div>
 
         {/* Carousel for Messages */}
-        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 lg:px-8">
           <Carousel
             autoplay={true}
             autoplayDelay={3000}

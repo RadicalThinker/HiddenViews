@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect,useState ,  useRef } from "react";
 import { motion, PanInfo, useMotionValue, useTransform } from "motion/react";
 import React, { JSX } from "react";
 
@@ -16,19 +16,24 @@ const useResponsiveWidth = () => {
       let baseWidth = 660;
       let itemHeight = 160;
 
-      // Mobile devices
-      if (width < 640) {
-        baseWidth = width - 64; // Reserve space for container padding (32px each side)
+      // Small mobile devices (phones)
+      if (width < 480) {
+        baseWidth = width - 64; // 32px padding each side for gaps
+        itemHeight = 120;
+      }
+      // Mobile devices (large phones)
+      else if (width < 640) {
+        baseWidth = width - 80; // 40px padding each side for gaps
         itemHeight = 140;
       }
       // Tablet devices
       else if (width < 1024) {
-        baseWidth = width - 96; // Reserve space for container padding (48px each side)
+        baseWidth = width - 64; // 32px padding each side
         itemHeight = 150;
       }
       // Desktop
       else {
-        baseWidth = Math.min(660, width - 128); // Max 660px or screen width - container padding (64px each side)
+        baseWidth = Math.min(660, width - 128); // Max 660px or 64px padding each side
         itemHeight = 160;
       }
 
@@ -116,9 +121,9 @@ const CarouselItem: React.FC<CarouselItemProps> = ({
       }}
       transition={effectiveTransition}
     >
-      <div className="p-3 sm:p-4 md:p-5">
-        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white mb-2 sm:mb-3 leading-relaxed">{item.description}</p>
-        <p className="text-xs sm:text-sm md:text-md text-text-200/60">{item.icon}</p>
+      <div className="p-2 sm:p-3 md:p-4 lg:p-5">
+        <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white mb-1 sm:mb-2 md:mb-3 leading-snug sm:leading-relaxed line-clamp-4 sm:line-clamp-none">{item.description}</p>
+        <p className="text-xs sm:text-sm text-text-200/60 mt-auto">{item.icon}</p>
       </div>
     </motion.div>
   );
@@ -181,8 +186,9 @@ export default function Carousel({
   
   // Calculate padding based on screen size for better mobile experience
   const containerPadding = responsive ? (
-    responsiveDimensions.width < 640 ? 32 : // Mobile: 32px padding (matches hook calculation)
-    responsiveDimensions.width < 1024 ? 48 : // Tablet: 48px padding (matches hook calculation)
+    responsiveDimensions.width < 480 ? 32 : // Small mobile: 32px padding
+    responsiveDimensions.width < 640 ? 40 : // Mobile: 40px padding for side gaps
+    responsiveDimensions.width < 1024 ? 48 : // Tablet: 48px padding
     64 // Desktop: 64px padding (matches hook calculation)
   ) : 32;
   
@@ -285,15 +291,16 @@ export default function Carousel({
       ref={containerRef}
       className={`relative overflow-hidden ${
         round
-          ? "rounded-full border border-white p-4"
-          : "rounded-[24px] border border-[#222] py-2 px-4"
-      } ${responsive ? 'max-w-4xl mx-auto' : ''}`}
+          ? "rounded-full border border-white p-2 sm:p-3 md:p-4"
+          : "rounded-xl sm:rounded-2xl border border-[#222] py-1 px-4 sm:px-6 md:px-4"
+      } ${responsive ? 'w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto' : ''}`}
       style={{
-        width: `${actualContainerWidth}px`,
+        width: responsive ? 'auto' : `${actualContainerWidth}px`,
+        maxWidth: responsive ? `${actualContainerWidth}px` : 'none',
         height: `${containerHeight}px`,
       }}
     >
-      <div className="flex justify-center items-start pt-1">
+      <div className="flex justify-center items-start pt-1 pb-1">
         <motion.div
           className="flex"
           drag="x"
@@ -332,11 +339,15 @@ export default function Carousel({
           round ? "absolute z-20 bottom-12 left-1/2 -translate-x-1/2" : "mt-6"
         }`}
       >
-        <div className="flex w-[150px] justify-between px-8">
+        <div className={`flex justify-between px-4 sm:px-6 md:px-8 ${
+          responsive && responsiveDimensions.width < 640 
+            ? 'w-[100px] sm:w-[120px]' 
+            : 'w-[150px]'
+        }`}>
           {items.map((_, index) => (
             <motion.div
               key={index}
-              className={`h-3 w-3 rounded-full cursor-pointer transition-colors duration-150 ${
+              className={`h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full cursor-pointer transition-colors duration-150 ${
                 currentIndex % items.length === index
                   ? round
                     ? "bg-white"
@@ -346,7 +357,7 @@ export default function Carousel({
                   : "bg-[rgba(255,255,255,0.3)]"
               }`}
               animate={{
-                scale: currentIndex % items.length === index ? 1.2 : 1,
+                scale: currentIndex % items.length === index ? 1.3 : 1,
               }}
               onClick={() => setCurrentIndex(index)}
               transition={{ duration: 0.15 }}
