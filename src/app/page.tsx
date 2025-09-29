@@ -1,14 +1,41 @@
 "use client";
 import { Satisfy } from 'next/font/google'
-import React, { useState, Suspense, useMemo, useCallback, useEffect } from "react";
+import React, { useState, Suspense, useMemo, useCallback, useEffect, useRef } from "react";
 import { FlipWords } from "@/components/ui/flip-words";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button"
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import dynamic from 'next/dynamic';
-import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar } from 'react-icons/fi';
+import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar, FiCheck } from 'react-icons/fi';
 import Lenis from '@studio-freight/lenis';
+
+// Custom hook for intersection observer
+const useIntersectionObserver = (options = {}) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+      },
+      { threshold: 0.1, ...options }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  return [ref, isIntersecting] as const;
+};
 
 // Dynamic imports for heavy components
 const DotGrid = dynamic(() => import('@/components/DotGrid'), {
@@ -152,7 +179,7 @@ const ContactForm = React.memo(function ContactForm() {
         
         <Button 
           type="submit" 
-          className="w-full bg-[#5227FF] hover:bg-[#4118CC] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-customPrimary-300 hover:bg-customPrimary-200 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Sending...' : 'Send Message'}
@@ -198,20 +225,169 @@ const FEATURES_DATA = [
   }
 ];
 
-// Memoized Feature Card component
-const FeatureCard = React.memo(({ icon: Icon, title, description }: { 
+// Enhanced Feature Card component with premium animations
+const FeatureCard = React.memo(({ icon: Icon, title, description, index }: { 
   icon: React.ComponentType<any>, 
   title: string, 
-  description: string 
-}) => (
-  <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 hover:bg-gray-900/70 transition-colors">
-    <Icon className="w-12 h-12 text-[#5227FF] mb-4" />
-    <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
-    <p className="text-gray-400">{description}</p>
-  </div>
-));
+  description: string,
+  index: number
+}) => {
+  const intersection = useIntersectionObserver();
+  const ref = intersection[0] as React.RefObject<HTMLDivElement>;
+  const isIntersecting = intersection[1];
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div 
+      ref={ref}
+      className={`group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+        hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+        transition-all duration-700 ease-out cursor-pointer overflow-hidden
+        ${isIntersecting ? 'animate-in slide-in-from-bottom-8 fade-in' : 'opacity-0 translate-y-8'}`}
+      style={{
+        animationDelay: `${index * 150}ms`,
+        animationFillMode: 'both'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      {/* Animated border */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+      <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+      
+      <div className="relative z-10">
+        <div className={`transform transition-all duration-500 ${isHovered ? 'scale-110 rotate-3' : ''}`}>
+          <Icon className={`w-12 h-12 mb-4 transition-all duration-500 ${isHovered ? 'text-[#4118FF] drop-shadow-lg' : 'text-zinc-600'}`} />
+        </div>
+        <h3 className={`text-xl font-semibold mb-3 transition-all duration-300 ${isHovered ? 'text-white' : 'text-gray-100'}`}>
+          {title}
+        </h3>
+        <p className={`transition-all duration-300 ${isHovered ? 'text-gray-300' : 'text-gray-400'}`}>
+          {description}
+        </p>
+      </div>
+      
+      {/* Shine effect */}
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000`}>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+      </div>
+    </div>
+  );
+});
 
 FeatureCard.displayName = 'FeatureCard';
+
+// Premium Pricing Card Component
+const PricingCard = React.memo(() => {
+  const [ref, isIntersecting] = useIntersectionObserver();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const features = [
+    "Unlimited Event Creations",
+    "Advanced and deep review analytics", 
+    "Unlimited AI Report generations",
+    "No Ads"
+  ];
+
+  return (
+    <div 
+      ref={ref}
+      className={`group relative max-w-md mx-auto transform transition-all duration-700 ease-out
+        ${isIntersecting ? 'animate-in slide-in-from-bottom-8 fade-in scale-in-95' : 'opacity-0 translate-y-8 scale-95'}`}
+      style={{
+        animationDelay: '200ms',
+        animationFillMode: 'both'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Animated background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-bg-100 to-bg-300/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-50 group-hover:opacity-100" />
+      
+      <div className="relative bg-gradient-to-br from-bg-100/60 to-bg-200/80 border border-zinc-400/50 rounded-3xl p-8 lg:p-12 backdrop-blur-sm ">
+        {/* Animated border gradient */}
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+        <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+        
+        {/* Floating badge */}
+        <div className={`absolute -top-4 left-1/2 transform -translate-x-1/2 transition-all duration-500 ${isHovered ? 'scale-110 -translate-y-1' : ''}`}>
+          <div className="bg-gradient-to-r from-blue-600/60 to-zinc-600/60 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg shadow-[#5227FF]/30">
+            <span className="relative z-10">Free For Now ✨</span>
+          </div>
+        </div>
+        
+        <div className="relative z-10 text-center pt-8">
+          {/* Title with animation */}
+          <h3 className={`text-3xl font-bold mb-4 transition-all duration-500 ${isHovered ? 'text-white scale-105' : 'text-gray-100'}`}>
+            Premium
+          </h3>
+          
+          {/* Price with striking animation */}
+          <div className={`mb-6 transition-all duration-500 ${isHovered ? 'scale-105' : ''}`}>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <span className="text-2xl line-through text-gray-500 font-semibold">₹9</span>
+              <div className="text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                ₹0
+              </div>
+            </div>
+            <p className="text-gray-400 text-lg">/month</p>
+            <p className="text-sm text-zinc-400 font-medium mt-2">For professionals and teams</p>
+          </div>
+          
+          {/* Features list with stagger animation */}
+          <ul className="space-y-4 mb-10">
+            {features.map((feature, index) => (
+              <li 
+                key={index}
+                className={`flex items-center text-gray-300 transition-all duration-500`}
+                style={{
+                  animationDelay: `${(index + 1) * 100}ms`,
+                  transform: isIntersecting ? 'translateX(0)' : 'translateX(-20px)',
+                  opacity: isIntersecting ? 1 : 0
+                }}
+              >
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-blue-600 to-zinc-400 flex items-center justify-center mr-4 transition-all duration-300 ${isHovered ? 'scale-110' : ''}`}>
+                  <FiCheck className="w-3 h-3 text-white" />
+                </div>
+                <span className={`transition-all duration-300 ${isHovered ? 'text-white' : 'text-gray-300'}`}>
+                  {feature}
+                </span>
+              </li>
+            ))}
+          </ul>
+          
+          {/* CTA Button with premium styling */}
+          <Link href="/sign-up" className="block">
+            <Button className={`w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-zinc-400 hover:from-zinc-600 hover:v0ia-zinc-400 hover:to-zinc-300  text-white font-semibold py-4 rounded-2xl transition-all duration-500 transform ${isHovered ? 'scale-105 shadow-2xl shadow-zinc-500/30' : 'shadow-lg shadow-zinc-500/20'}`}>
+              <span className="relative z-10">Start Premium Trial</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+            </Button>
+          </Link>
+        </div>
+        
+        {/* Floating particles effect */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden rounded-3xl">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute w-2 h-2 bg-zinc-500/30 rounded-full transition-all duration-1000 ${isHovered ? 'animate-pulse' : ''}`}
+              style={{
+                left: `${20 + i * 15}%`,
+                top: `${10 + i * 12}%`,
+                animationDelay: `${i * 200}ms`
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+PricingCard.displayName = 'PricingCard';
 
 export default function Home() {
   const words = useMemo(() => FLIP_WORDS, []);
@@ -311,22 +487,31 @@ export default function Home() {
       <Suspense fallback={<div className="py-20 px-4 md:px-12 lg:px-24 relative z-10 animate-pulse bg-gray-900/20 rounded-lg" />}>
         <section id="features" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Why Choose HiddenViews?
-            </h2>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              Get honest feedback without the fear of judgment or retaliation.
-            </p>
+          <div className="text-center mb-20">
+            <div className="inline-block">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6 leading-tight">
+                Why Choose {" "}
+                <span className="bg-gradient-to-r from-zinc-600 via-zinc-500 to-zinc-400 bg-clip-text text-transparent italic">
+                  HiddenViews?
+                </span>
+              </h2>
+            </div>
+            <div className="relative">
+              <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Get honest feedback without the fear of judgment or retaliation.
+              </p>
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-zinc-600 to-zinc-400 rounded-full" />
+            </div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {FEATURES_DATA.slice(0, 6).map((feature, index) => (
               <FeatureCard
                 key={index}
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
+                index={index}
               />
             ))}
           </div>
@@ -337,60 +522,29 @@ export default function Home() {
       {/* Pricing Section */}
       <section id="pricing" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Simple Pricing
-            </h2>
-            <p className="text-lg text-gray-300">
-              Start free, upgrade when you need more features.
-            </p>
+          <div className="text-center mb-20">
+            <div className="inline-block">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6 leading-tight">
+                Simple {" "}
+                <span className="bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-300 bg-clip-text text-transparent">
+                  Pricing
+                </span>
+              </h2>
+            </div>
+            <div className="relative">
+              <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                Start free, upgrade when you need more features.
+              </p>
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-zinc-600 to-zinc-400 rounded-full" />
+            </div>
           </div>
           
           <div className="flex justify-center">
             
             
             
-            {/* Pro Plan */}
-            <div className="bg-gray-900/40 border border-[#5227FF] rounded-2xl p-16 relative">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <span className="bg-gray-900/70 text-white px-4 py-1 rounded-full text-sm font-medium">
-                  Free For Now
-                </span>
-              </div>
-              
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
-                <div className="text-4xl font-bold text-white mb-4">
-                  <span className="line-through text-gray-500  mr-2">₹9</span>₹0<span className="text-lg text-gray-400">/month</span>
-                </div>
-                <p className="text-gray-400">For professionals and teams</p>
-              </div>
-              
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center text-gray-300">
-                  <FiStar className="w-5 h-5 text-[#5227FF] mr-3" />
-                  Unlimited Event Creations
-                </li>
-                <li className="flex items-center text-gray-300">
-                  <FiStar className="w-5 h-5 text-[#5227FF] mr-3" />
-                  Advanced and deep review analytics
-                </li>
-                <li className="flex items-center text-gray-300">
-                  <FiStar className="w-5 h-5 text-[#5227FF] mr-3" />
-                  Unlimited Ai Report generations
-                </li>
-                <li className="flex items-center text-gray-300">
-                  <FiStar className="w-5 h-5 text-[#5227FF] mr-3" />
-                  No Ads
-                </li>
-              </ul>
-              
-              <Link href="/sign-up" className="block">
-                <Button className="w-full bg-zinc-900 text-white hover:bg-zinc-800">
-                  Start Pro Trial
-                </Button>
-              </Link>
-            </div>
+            {/* Premium Pro Plan */}
+            <PricingCard />
           </div>
         </div>
       </section>
@@ -401,13 +555,21 @@ export default function Home() {
     <div className="bg-[#080808]">
       <section id="contact" className="py-20 px-4 md:px-12 lg:px-24">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Get in Touch
-            </h2>
-            <p className="text-lg text-gray-300">
-              Have questions? We&apos;d love to hear from you.
-            </p>
+          <div className="text-center mb-20">
+            <div className="inline-block">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-6 leading-tight">
+                Get in {" "}
+                <span className="bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-300 bg-clip-text text-transparent">
+                  Touch
+                </span>
+              </h2>
+            </div>
+            <div className="relative">
+              <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                Have questions? We'd love to hear from you.
+              </p>
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-300  rounded-full" />
+            </div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-12">
@@ -417,7 +579,7 @@ export default function Home() {
               
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <Mail className="w-6 h-6 text-[#5227FF] mr-4 mt-1" />
+                  <Mail className="w-6 h-6 text-zinc-600 hover:text-rose-400 mr-4 mt-1" />
                   <div>
                     <p className="text-white font-medium">Email</p>
                     <p className="text-gray-400">voicesecret9@gmail.com</p>
@@ -425,7 +587,7 @@ export default function Home() {
                 </div>
                 
                 <div className="flex items-start">
-                  <FiGithub className="w-6 h-6 text-[#5227FF] mr-4 mt-1" />
+                  <FiGithub className="w-6 h-6 text-zinc-600 hover:text-customPrimary-300 mr-4 mt-1" />
                   <div>
                     <p className="text-white font-medium">GitHub</p>
                     <a href="https://github.com/radicalthinker" className="text-gray-400 hover:text-[#5227FF] transition-colors">
