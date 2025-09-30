@@ -40,3 +40,5 @@ next-env.d.ts
 summary.md
 .vscode
 resend.txt
+generate-icons.js
+generate-icons.html
