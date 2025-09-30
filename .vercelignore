@@ -1,0 +1,23 @@
+# Prevent Vercel from scanning heavy/generated folders
+node_modules
+.next
+out
+build
+.vscode
+.env*
+*.log
+coverage
+.DS_Store
+summary.md
+
+# Exclude large/public assets that are not needed for trace collection
+public/icons
+public/icons/**
+public/**/*.psd
+public/**/*.ai
+public/**/*.sketch
+
+# Temp / helper files
+generate-icons.js
+generate-icons.html
+resend.txt
