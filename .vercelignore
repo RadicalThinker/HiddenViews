@@ -19,8 +19,8 @@ resend.txt
 
 # Exclude heavy icon assets (keep only essentials)
 public/icons/**/*
-!public/icons/icon-192x192.png
-!public/icons/icon-512x512.png
+public/icons/icon-192x192.png
+public/icons/icon-512x512.png
 
 # Keep only essential files for build
 !package.json
