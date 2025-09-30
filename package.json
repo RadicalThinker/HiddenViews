@@ -23,7 +23,6 @@
     "@react-email/components": "0.0.12",
     "@react-email/render": "^0.0.9-canary.2",
     "@studio-freight/lenis": "^1.0.42",
-    "@tabler/icons-react": "^3.35.0",
     "ai": "^2.2.30",
     "axios": "^1.6.3",
     "bcryptjs": "^2.4.3",

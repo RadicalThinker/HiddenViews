@@ -1,32 +1,40 @@
-# Ignore everything by default (very strict)
-*
+# Aggressive exclusions to prevent micromatch stack overflow
+node_modules/**/*
+.next/**/*
+.git/**/*
+out/**/*
+build/**/*
+coverage/**/*
 
-# Keep essential project files
-!package.json
-!package-lock.json
-!yarn.lock
-!next.config.js
-!tsconfig.json
-!.vercelignore
-
-# Keep source and public (whitelist selectively)
-!src/**
-!public/favicon.ico
-!public/manifest.json
-
-# Still ignore large/aux folders
-public/icons
-public/icons/**
-node_modules
-.next
-out
-build
-.vscode
-.env*
+# Generated/temp files that cause trace collection issues
 *.log
-coverage
+*.pem
 .DS_Store
+.vscode/**/*
+.env*
 summary.md
 generate-icons.js
 generate-icons.html
 resend.txt
+
+# Exclude heavy icon assets (keep only essentials)
+public/icons/**/*
+!public/icons/icon-192x192.png
+!public/icons/icon-512x512.png
+
+# Keep only essential files for build
+!package.json
+!package-lock.json
+!next.config.js
+!tsconfig.json
+!tailwind.config.ts
+!postcss.config.js
+!components.json
+!.vercelignore
+
+# Keep source code and essential public assets
+!src/**/*
+!public/manifest.json
+!public/sw.js
+!public/offline.html
+!public/favicon.ico

@@ -15,7 +15,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'HiddenViews Team' }],
   manifest: '/manifest.json',
   themeColor: '#080808',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -26,6 +25,12 @@ export const metadata: Metadata = {
     description: 'Get honest feedback and answer questions anonymously. Build trust through transparency.',
     type: 'website',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 interface RootLayoutProps {
