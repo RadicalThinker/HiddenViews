@@ -1,4 +1,22 @@
-# Prevent Vercel from scanning heavy/generated folders
+# Ignore everything by default (very strict)
+*
+
+# Keep essential project files
+!package.json
+!package-lock.json
+!yarn.lock
+!next.config.js
+!tsconfig.json
+!.vercelignore
+
+# Keep source and public (whitelist selectively)
+!src/**
+!public/favicon.ico
+!public/manifest.json
+
+# Still ignore large/aux folders
+public/icons
+public/icons/**
 node_modules
 .next
 out
@@ -9,15 +27,6 @@ build
 coverage
 .DS_Store
 summary.md
-
-# Exclude large/public assets that are not needed for trace collection
-public/icons
-public/icons/**
-public/**/*.psd
-public/**/*.ai
-public/**/*.sketch
-
-# Temp / helper files
 generate-icons.js
 generate-icons.html
 resend.txt
