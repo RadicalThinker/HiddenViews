@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import dynamic from 'next/dynamic';
-import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar, FiCheck } from 'react-icons/fi';
+import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar, FiCheck,FiTarget  } from 'react-icons/fi';
 import Lenis from '@studio-freight/lenis';
 
 // Custom hook for intersection observer
@@ -201,7 +201,7 @@ const FEATURES_DATA = [
   {
     icon: FiShield,
     title: "Privacy First",
-    description: "End-to-end encryption ensures your messages are secure and private from start to finish."
+    description: "All The Events created by the user are protected and kept private so no one can access them without permission."
   },
   {
     icon: FiMessageCircle,
@@ -209,14 +209,14 @@ const FEATURES_DATA = [
     description: "Get genuine, unfiltered opinions that help you grow and improve without bias."
   },
   {
-    icon: FiZap,
-    title: "Instant Delivery",
-    description: "Messages are delivered instantly with real-time notifications and updates."
+    icon: FiTarget,
+    title: "AI Report",
+    description: "Advanced AI analyzes feedback to provide you with insightful reports and actionable recommendations."
   },
   {
     icon: FiUsers,
-    title: "Team Collaboration",
-    description: "Share your profile with teams, colleagues, or friends to gather collective feedback."
+    title: "Feedback Control",
+    description: "You decide when can people view and respond to your feedback, giving you full control over your interactions."
   },
   {
     icon: FiStar,
@@ -453,12 +453,20 @@ export default function Home() {
         </section>
 
         {/* Simple action buttons (moved above carousel) */}
-        <div className="mb-6 flex gap-4 justify-center">
-  
+        <div className="mb-6 flex gap-4 justify-center flex-wrap">
           <Link href="/sign-up">
             <InteractiveHoverButton>Try it Now</InteractiveHoverButton>
           </Link>
-                  <a
+          
+          {/* PWA Install Button */}
+          <button
+            id="install-button"
+            className="hidden px-6 py-3 bg-gradient-to-r from-zinc-700 to-zinc-600 hover:from-zinc-600 hover:to-zinc-500 text-white rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border border-zinc-600"
+          >
+            📱 Install App
+          </button>
+          
+          <a
             href="https://github.com/radicalthinker"
             target="_blank"
             rel="noreferrer"
@@ -505,15 +513,162 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-            {FEATURES_DATA.slice(0, 6).map((feature, index) => (
-              <FeatureCard
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                index={index}
-              />
-            ))}
+            <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+              hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+              transition-all duration-700 ease-out cursor-pointer overflow-hidden
+              animate-in slide-in-from-bottom-8 fade-in"
+              style={{ animationDelay: '0ms', animationFillMode: 'both' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+              <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+              
+              <div className="relative z-10">
+                <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <FiEyeOff className="w-12 h-12 mb-4 text-gray-500 group-hover:text-purple-400 transition-all duration-500 group-hover:drop-shadow-lg" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
+                  Complete Anonymity
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-all duration-300">
+                  Your identity remains completely hidden. No tracking, no logs, just pure anonymous feedback.
+                </p>
+              </div>
+              
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+            </div>
+            <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+              hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+              transition-all duration-700 ease-out cursor-pointer overflow-hidden
+              animate-in slide-in-from-bottom-8 fade-in"
+              style={{ animationDelay: '150ms', animationFillMode: 'both' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+              <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+              
+              <div className="relative z-10">
+                <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <FiShield className="w-12 h-12 mb-4 text-gray-500 group-hover:text-blue-400 transition-all duration-500 group-hover:drop-shadow-lg" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
+                  Privacy First
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-all duration-300">
+                  All The Events created by the user are protected and kept private so no one can access them without permission.
+                </p>
+              </div>
+              
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+            </div>
+            <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+              hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+              transition-all duration-700 ease-out cursor-pointer overflow-hidden
+              animate-in slide-in-from-bottom-8 fade-in"
+              style={{ animationDelay: '300ms', animationFillMode: 'both' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+              <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+              
+              <div className="relative z-10">
+                <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <FiMessageCircle className="w-12 h-12 mb-4 text-gray-500 group-hover:text-green-400 transition-all duration-500 group-hover:drop-shadow-lg" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
+                  Honest Feedback
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-all duration-300">
+                  Get genuine, unfiltered opinions that help you grow and improve without bias.
+                </p>
+              </div>
+              
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+            </div>
+            <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+              hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+              transition-all duration-700 ease-out cursor-pointer overflow-hidden
+              animate-in slide-in-from-bottom-8 fade-in"
+              style={{ animationDelay: '450ms', animationFillMode: 'both' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+              <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+              
+              <div className="relative z-10">
+                <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <FiTarget className="w-12 h-12 mb-4 text-gray-500 group-hover:rose-red-600 transition-all duration-500 group-hover:drop-shadow-lg" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
+                  AI Report
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-all duration-300">
+                  Advanced AI analyzes feedback to provide you with insightful reports and actionable recommendations.
+                </p>
+              </div>
+              
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+            </div>
+            <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+              hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+              transition-all duration-700 ease-out cursor-pointer overflow-hidden
+              animate-in slide-in-from-bottom-8 fade-in"
+              style={{ animationDelay: '600ms', animationFillMode: 'both' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+              <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+              
+              <div className="relative z-10">
+                <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <FiUsers className="w-12 h-12 mb-4 text-gray-500 group-hover:text-orange-400 transition-all duration-500 group-hover:drop-shadow-lg" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
+                  Feedback Control
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-all duration-300">
+                  You decide when can people view and respond to your feedback, giving you full control over your interactions.
+                </p>
+              </div>
+              
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+            </div>
+            <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
+              hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
+              transition-all duration-700 ease-out cursor-pointer overflow-hidden
+              animate-in slide-in-from-bottom-8 fade-in"
+              style={{ animationDelay: '750ms', animationFillMode: 'both' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-bg-300/20 to-bg-200/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+              <div className="absolute inset-[1px] rounded-2xl bg-gradient-to-br from-gray-900/40 to-gray-900/60" />
+              
+              <div className="relative z-10">
+                <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <FiStar className="w-12 h-12 mb-4 text-gray-500 group-hover:text-yellow-400 transition-all duration-500 group-hover:drop-shadow-lg" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
+                  Easy to Use
+                </h3>
+                <p className="text-gray-400 group-hover:text-gray-300 transition-all duration-300">
+                  Simple, intuitive interface that anyone can use without technical knowledge.
+                </p>
+              </div>
+              
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+              </div>
+            </div>
           </div>
         </div>
         </section>
@@ -566,7 +721,7 @@ export default function Home() {
             </div>
             <div className="relative">
               <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                Have questions? We'd love to hear from you.
+                Have questions? We&apos;d love to hear from you.
               </p>
               <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-300  rounded-full" />
             </div>
