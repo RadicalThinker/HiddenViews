@@ -29,7 +29,7 @@ import { formatDistanceToNow, isValid } from 'date-fns';
 import { EventsHoverEffect } from '@/components/EventsHoverEffect';
 import { WobbleCard } from '@/components/ui/wobble-card';
 import { Pagination } from '@/components/pagination';
-import SessionRefresher from '@/components/SessionRefresher';
+// import SessionRefresher from '@/components/SessionRefresher';
 
 interface EventData {
   _id: string;
@@ -212,6 +212,7 @@ function EventsDashboard() {
       }
     }
   }, [status, session]);
+  console.log("Session" , )
 
   if (!session && status !== 'loading') {
     return (
@@ -235,7 +236,7 @@ function EventsDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <SessionRefresher />
+      {/* <SessionRefresher /> */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
