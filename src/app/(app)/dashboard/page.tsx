@@ -214,7 +214,7 @@ function EventsDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 w-screen overflow-hidden">
+    <div className="container mx-auto px-4 py-8">
       {/* <SessionRefresher /> */}
       <div className="flex justify-between items-center mb-8">
         <div>
