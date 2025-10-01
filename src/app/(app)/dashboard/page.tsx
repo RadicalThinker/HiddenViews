@@ -197,11 +197,37 @@ function EventsDashboard() {
     }
   };
 
-  if (!session) {
+  // Mobile session debugging
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile && status === 'unauthenticated') {
+        console.log('📱 MOBILE SESSION ISSUE:', {
+          status,
+          hasSession: !!session,
+          cookies: document.cookie,
+          url: window.location.href,
+          isSecure: window.isSecureContext
+        });
+      }
+    }
+  }, [status, session]);
+
+  if (!session && status !== 'loading') {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Please sign in to access your dashboard</h1>
+          <div className="mt-4 text-sm text-gray-600">
+            Status: {status} | Session: {session ? 'exists' : 'none'}
+          </div>
+          <Button
+            onClick={testSessionAPI}
+            className="mt-4"
+            variant="outline"
+          >
+            Test Session API
+          </Button>
         </div>
       </div>
     );
