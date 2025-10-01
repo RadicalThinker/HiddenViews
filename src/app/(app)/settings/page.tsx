@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Check, Loader2, LogOut, Shield } from 'lucide-react'
 
-export default function SettingsPage() {
+function SettingsPage() {
   const { data: session, status, update } = useSession()
   const { toast } = useToast()
 
@@ -239,11 +239,17 @@ export default function SettingsPage() {
           <CardTitle>Logout</CardTitle>
         </CardHeader>
         <CardContent>
-          <Button variant="destructive" onClick={() => signOut()}>
+          <Button variant="destructive" onClick={() => signOut({ callbackUrl: '/sign-in' })}>
             <LogOut className="w-4 h-4 mr-2" /> Sign Out
           </Button>
         </CardContent>
       </Card>
     </div>
   )
+}
+
+export default function SettingsPageWrapper() {
+  const { data: session } = useSession()
+  
+  return <SettingsPage key={session?.user?._id || 'no-user'} />
 }

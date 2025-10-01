@@ -19,10 +19,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/use-toast';
 import { signInSchema } from '@/schemas/signInSchema';
+import { useSession } from 'next-auth/react';
 
 export default function SignInForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { update } = useSession();
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -33,12 +35,21 @@ export default function SignInForm() {
 
   const { toast } = useToast();
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+    console.log('🚀 Sign-in attempt started for:', data.identifier);
     setIsLoading(true);
     try {
       const result = await signIn('credentials', {
         redirect: false,
         identifier: data.identifier,
         password: data.password,
+      });
+
+      console.log('🔑 Sign-in result:', {
+        ok: result?.ok,
+        error: result?.error,
+        url: result?.url,
+        status: result?.status,
+        timestamp: new Date().toISOString()
       });
 
       if (result?.error) {
@@ -55,12 +66,18 @@ export default function SignInForm() {
             variant: 'destructive',
           });
         }
-      }
+      } else if (result?.ok) {
+        console.log('✅ Sign-in successful - creating session');
+        toast({
+          title: 'Success',
+          description: 'Signed in successfully!',
+        });
 
-      if (result?.url) {
-        router.replace('/dashboard');
+        // Simple redirect to dashboard
+        window.location.href = '/dashboard';
       }
     } catch (error) {
+      console.error('❌ Sign-in error:', error);
       toast({
         title: 'Error',
         description: 'Something went wrong. Please try again.',

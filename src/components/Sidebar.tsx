@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
+import { clearSessionAndRedirect } from '@/utils/sessionUtils';
 import { Button } from './ui/button';
 import { ThemeToggle } from './ThemeToggle';
 import { StarDisplay } from './StarRating';
@@ -31,6 +32,7 @@ import { cn } from '@/lib/utils';
 function Sidebar() {
   const { data: session } = useSession();
   const user: User = session?.user;
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -224,7 +226,7 @@ function Sidebar() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => signOut()}
+                      onClick={clearSessionAndRedirect}
                       className="text-red-600 dark:text-red-400 cursor-pointer dark:hover:bg-red-300 dark:hover:text-red-600"
                     >
                       <LogOut className="mr-2 h-4 w-4" />

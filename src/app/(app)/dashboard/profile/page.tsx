@@ -106,7 +106,7 @@ function parseReport(text: string): ParsedReport {
   return sections
 }
 
-export default function ProfilePage() {
+function ProfilePage() {
   const { data: session } = useSession()
   const { toast } = useToast()
 
@@ -512,4 +512,10 @@ export default function ProfilePage() {
       </Card>
     </div>
   )
+}
+
+export default function ProfilePageWrapper() {
+  const { data: session } = useSession()
+  
+  return <ProfilePage key={session?.user?._id || 'no-user'} />
 }

@@ -14,6 +14,13 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials: any): Promise<any> {
+        console.log('🔑 AUTHORIZE FUNCTION TRIGGERED:', {
+          hasCredentials: !!credentials,
+          identifier: credentials?.identifier,
+          hasPassword: !!credentials?.password,
+          timestamp: new Date().toISOString()
+        });
+
         await dbConnect();
         try {
           const user = await UserModel.findOne({
@@ -22,6 +29,15 @@ export const authOptions: NextAuthOptions = {
               { username: credentials.identifier },
             ],
           });
+
+          console.log('👤 USER LOOKUP RESULT:', {
+            found: !!user,
+            userId: user?._id,
+            username: user?.username,
+            email: user?.email,
+            isVerified: user?.isVerified
+          });
+
           if (!user) {
             throw new Error('No user found with this email or username');
           }
@@ -34,12 +50,20 @@ export const authOptions: NextAuthOptions = {
             credentials.password,
             user.password
           );
+
+          console.log('🔐 PASSWORD CHECK:', {
+            passwordCorrect: isPasswordCorrect,
+            timestamp: new Date().toISOString()
+          });
+
           if (isPasswordCorrect) {
+            console.log('✅ AUTH SUCCESS - RETURNING USER:', user.username);
             return user;
           } else {
             throw new Error('Incorrect password');
           }
         } catch (err: any) {
+          console.log('❌ AUTH ERROR:', err.message);
           throw new Error(err.message || 'An error occurred during authentication');
         }
       },
@@ -47,37 +71,55 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      console.log('🔐 JWT Callback TRIGGERED - Basic:', {
+        hasUser: !!user,
+        hasToken: !!token,
+        userId: user?.id || user?._id,
+        tokenId: token?.sub,
+        timestamp: new Date().toISOString()
+      });
+
+      // If user is provided (during sign-in), set the token
       if (user) {
-        token._id = user._id?.toString(); // Convert ObjectId to string
-        token.isAcceptingMessages = user.isAcceptingMessages;
+        console.log('✅ Setting JWT token for user:', user.username || user.email);
+        token._id = user._id?.toString();
         token.username = user.username;
+        token.email = user.email;
         token.isVerified = user.isVerified;
-        // Forward profile stats onto the token so we can expose them on the session
-        // This relies on your credentials authorize() returning the full user document
-        // including profileStats, which your Mongoose model provides.
-        // Marked optional in type augmentation.
-        token.profileStats = (user as any).profileStats;
+        token.isAcceptingMessages = user.isAcceptingMessages;
       }
+
+      console.log('📤 JWT returning token for:', token.username || 'unknown');
       return token;
     },
     async session({ session, token }) {
+      console.log('🎭 Session Callback TRIGGERED - Basic:', {
+        hasSession: !!session,
+        hasToken: !!token,
+        tokenUser: token?.username,
+        sessionUser: session?.user?.name,
+        timestamp: new Date().toISOString()
+      });
+
       if (token) {
+        console.log('✅ Setting session data for:', token.username);
         session.user._id = token._id;
-        session.user.isAcceptingMessages = token.isAcceptingMessages;
         session.user.username = token.username;
         session.user.isVerified = token.isVerified;
-        // Expose profileStats on the session user if present
-        if ((token as any).profileStats) {
-          session.user.profileStats = (token as any).profileStats;
-        }
+        session.user.isAcceptingMessages = token.isAcceptingMessages;
       }
+
+      console.log('📤 Session returning for:', session.user.username || 'unknown');
       return session;
     },
   },
   session: {
     strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 hours
+    updateAge: 60 * 60, // 1 hour
   },
   secret: process.env.NEXTAUTH_SECRET,
+  
   pages: {
     signIn: '/sign-in',
   },

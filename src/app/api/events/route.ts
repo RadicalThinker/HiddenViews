@@ -116,7 +116,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       { success: true, events },
-      { status: 200 }
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        }
+      }
     );
   } catch (error) {
     console.error('Error fetching events:', error);

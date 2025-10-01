@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Settings,
   Copy,
-  Share2
+  Share2,
+  RefreshCw
 } from 'lucide-react';
 import { User } from 'next-auth';
 import { useSession } from 'next-auth/react';
@@ -28,6 +29,7 @@ import { formatDistanceToNow, isValid } from 'date-fns';
 import { EventsHoverEffect } from '@/components/EventsHoverEffect';
 import { WobbleCard } from '@/components/ui/wobble-card';
 import { Pagination } from '@/components/pagination';
+import SessionRefresher from '@/components/SessionRefresher';
 
 interface EventData {
   _id: string;
@@ -72,13 +74,31 @@ function EventsDashboard() {
   const eventsPerPage = 6; // 2 rows of 3 cards
 
   const { toast } = useToast();
-  const { data: session } = useSession();
+  const { data: session, status, update } = useSession();
+
+  // Log session status only when it changes
+  console.log('📊 Dashboard Session:', {
+    status,
+    user: session?.user?.username || 'none',
+    timestamp: new Date().toISOString()
+  });
+
+  // Log when session changes (only significant changes)
+  useEffect(() => {
+    if (status === 'authenticated' || status === 'unauthenticated') {
+      console.log('🔄 Session Status:', status, '| User:', session?.user?.username || 'none');
+    }
+  }, [status, session?.user?.username]);
 
   // Fetch events
   const fetchEvents = useCallback(async () => {
+    if (!session?.user?._id) return; // Don't fetch if no user session
+    
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/events');
+      // Add timestamp to prevent caching
+      const timestamp = Date.now();
+      const response = await axios.get(`/api/events?t=${timestamp}`);
       if (response.data.success) {
         setEvents(response.data.events);
         
@@ -107,11 +127,28 @@ function EventsDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, session?.user?._id]);
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
+
+  // Clear data when user session changes
+  useEffect(() => {
+    if (session?.user?._id) {
+      // Clear previous user's data
+      setEvents([]);
+      setUserStats({
+        totalEvents: 0,
+        totalReviews: 0,
+        totalQueries: 0,
+        averageRating: 0,
+      });
+      setCurrentPage(1);
+      // Fetch new user's data
+      fetchEvents();
+    }
+  }, [session?.user?._id, fetchEvents]);
 
   const copyEventLink = (slug: string) => {
     const link = `${window.location.origin}/e/${slug}`;
@@ -120,6 +157,27 @@ function EventsDashboard() {
       title: 'Link Copied!',
       description: 'Event link has been copied to clipboard',
     });
+  };
+
+  const refreshSession = async () => {
+    console.log('🔄 Manually refreshing session...');
+    try {
+      await update();
+      console.log('✅ Session refresh completed');
+    } catch (error) {
+      console.log('❌ Session refresh failed:', error);
+    }
+  };
+
+  const testSessionAPI = async () => {
+    console.log('🧪 Testing NextAuth session API...');
+    try {
+      const response = await fetch('/api/auth/session');
+      const data = await response.json();
+      console.log('🧪 Session API Response:', data);
+    } catch (error) {
+      console.log('🧪 Session API Error:', error);
+    }
   };
 
   const getEventTypeColor = (type: string) => {
@@ -151,6 +209,7 @@ function EventsDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <SessionRefresher />
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
@@ -166,6 +225,21 @@ function EventsDashboard() {
             Create Event
           </Button>
         </Link>
+        <Button
+          variant="outline"
+          onClick={refreshSession}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Refresh Session
+        </Button>
+        <Button
+          variant="outline"
+          onClick={testSessionAPI}
+          className="flex items-center gap-2"
+        >
+          Test API
+        </Button>
       </div>
 
       {/* Stats Overview with Wobble Effect */}
@@ -274,4 +348,8 @@ function EventsDashboard() {
   );
 }
 
-export default EventsDashboard;
+export default function DashboardWrapper() {
+  const { data: session } = useSession();
+  
+  return <EventsDashboard key={session?.user?._id || 'no-user'} />;
+}
