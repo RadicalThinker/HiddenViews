@@ -3,6 +3,7 @@ import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import { User } from 'next-auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   // Connect to the database
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error updating message acceptance status:', error);
+    logger.error('Error updating message acceptance status', error, { userId });
     return Response.json(
       { success: false, message: 'Error updating message acceptance status' },
       { status: 500 }
@@ -95,7 +96,7 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error retrieving message acceptance status:', error);
+    logger.error('Error retrieving message acceptance status', error, { userId: user._id });
     return Response.json(
       { success: false, message: 'Error retrieving message acceptance status' },
       { status: 500 }

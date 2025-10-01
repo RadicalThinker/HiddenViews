@@ -35,21 +35,12 @@ export default function SignInForm() {
 
   const { toast } = useToast();
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-    console.log('🚀 Sign-in attempt started for:', data.identifier);
     setIsLoading(true);
     try {
       const result = await signIn('credentials', {
         redirect: false,
         identifier: data.identifier,
         password: data.password,
-      });
-
-      console.log('🔑 Sign-in result:', {
-        ok: result?.ok,
-        error: result?.error,
-        url: result?.url,
-        status: result?.status,
-        timestamp: new Date().toISOString()
       });
 
       if (result?.error) {
@@ -67,7 +58,6 @@ export default function SignInForm() {
           });
         }
       } else if (result?.ok) {
-        console.log('✅ Sign-in successful - creating session');
         toast({
           title: 'Success',
           description: 'Signed in successfully!',
@@ -77,7 +67,9 @@ export default function SignInForm() {
         window.location.href = '/dashboard';
       }
     } catch (error) {
-      console.error('❌ Sign-in error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Sign-in error:', error);
+      }
       toast({
         title: 'Error',
         description: 'Something went wrong. Please try again.',

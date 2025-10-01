@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import { logger } from '@/lib/logger';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,10 +15,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials: any): Promise<any> {
-        console.log('🔑 AUTHORIZE FUNCTION TRIGGERED:', {
-          hasCredentials: !!credentials,
+        logger.debug('Auth attempt', {
           identifier: credentials?.identifier,
-          hasPassword: !!credentials?.password,
           timestamp: new Date().toISOString()
         });
 
@@ -30,11 +29,9 @@ export const authOptions: NextAuthOptions = {
             ],
           });
 
-          console.log('👤 USER LOOKUP RESULT:', {
+          logger.debug('User lookup', {
             found: !!user,
-            userId: user?._id,
             username: user?.username,
-            email: user?.email,
             isVerified: user?.isVerified
           });
 
@@ -51,19 +48,14 @@ export const authOptions: NextAuthOptions = {
             user.password
           );
 
-          console.log('🔐 PASSWORD CHECK:', {
-            passwordCorrect: isPasswordCorrect,
-            timestamp: new Date().toISOString()
-          });
-
           if (isPasswordCorrect) {
-            console.log('✅ AUTH SUCCESS - RETURNING USER:', user.username);
+            logger.debug('Auth success', { username: user.username });
             return user;
           } else {
             throw new Error('Incorrect password');
           }
         } catch (err: any) {
-          console.log('❌ AUTH ERROR:', err.message);
+          logger.error('Authentication error', err, { identifier: credentials?.identifier });
           throw new Error(err.message || 'An error occurred during authentication');
         }
       },
@@ -71,17 +63,9 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log('🔐 JWT Callback TRIGGERED - Basic:', {
-        hasUser: !!user,
-        hasToken: !!token,
-        userId: user?.id || user?._id,
-        tokenId: token?.sub,
-        timestamp: new Date().toISOString()
-      });
-
       // If user is provided (during sign-in), set the token
       if (user) {
-        console.log('✅ Setting JWT token for user:', user.username || user.email);
+        logger.debug('Setting JWT token', { username: user.username });
         token._id = user._id?.toString();
         token.username = user.username;
         token.email = user.email;
@@ -89,27 +73,16 @@ export const authOptions: NextAuthOptions = {
         token.isAcceptingMessages = user.isAcceptingMessages;
       }
 
-      console.log('📤 JWT returning token for:', token.username || 'unknown');
       return token;
     },
     async session({ session, token }) {
-      console.log('🎭 Session Callback TRIGGERED - Basic:', {
-        hasSession: !!session,
-        hasToken: !!token,
-        tokenUser: token?.username,
-        sessionUser: session?.user?.name,
-        timestamp: new Date().toISOString()
-      });
-
       if (token) {
-        console.log('✅ Setting session data for:', token.username);
         session.user._id = token._id;
         session.user.username = token.username;
         session.user.isVerified = token.isVerified;
         session.user.isAcceptingMessages = token.isAcceptingMessages;
       }
 
-      console.log('📤 Session returning for:', session.user.username || 'unknown');
       return session;
     },
   },

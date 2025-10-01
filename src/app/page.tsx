@@ -603,7 +603,7 @@ export default function Home() {
               
               <div className="relative z-10">
                 <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
-                  <FiTarget className="w-12 h-12 mb-4 text-gray-500 group-hover:rose-red-600 transition-all duration-500 group-hover:drop-shadow-lg" />
+                  <FiTarget className="w-12 h-12 mb-4 text-gray-500 group-hover:rose-600 transition-all duration-500 group-hover:drop-shadow-lg" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
                   AI Report
@@ -756,9 +756,9 @@ export default function Home() {
                 <h4 className="text-lg font-medium text-white mb-4">Why Choose HiddenViews?</h4>
                 <ul className="space-y-2 text-gray-400">
                   <li>• 100% Anonymous feedback</li>
-                  <li>• No data tracking or logging</li>
-                  <li>• Secure and private messaging</li>
-                  <li>• Easy to use interface</li>
+                  <li>• Multiple Event Creation</li>
+                  <li>• AI Review Analysis</li>
+                  <li>• User Friendly interface</li>
                 </ul>
               </div>
             </div>

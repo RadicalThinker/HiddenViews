@@ -1,6 +1,7 @@
 import { resend } from "@/lib/resend";
 import VerificationEmail from "../../emails/VerificationEmail";
 import { ApiResponse } from "@/types/ApiResponse";
+import { logger } from "@/lib/logger";
 
 export async function sendVerificationEmail(
   email: string,
@@ -8,7 +9,7 @@ export async function sendVerificationEmail(
   verifyCode: string
 ): Promise<ApiResponse> {
   try {
-    console.log('Sending verification email:', { email, username, verifyCode });
+    logger.debug('Sending verification email', { email, username });
     
     const response = await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
@@ -17,14 +18,14 @@ export async function sendVerificationEmail(
       react: VerificationEmail({ username, otp: verifyCode }),
     });
 
-    console.log("Resend API Response:", response);
+    logger.debug('Verification email sent', { email });
 
     return {
       success: true,
       message: "Verification email sent successfully.",
     };
   } catch (emailError) {
-    console.error("Error sending verification email:", emailError);
+    logger.error("Error sending verification email", emailError, { email, username });
     return {
       success: false,
       message: "An error occurred while sending the verification email.",

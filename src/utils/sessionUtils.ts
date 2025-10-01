@@ -3,8 +3,6 @@
 import { signOut } from 'next-auth/react';
 
 export function clearSessionAndRedirect() {
-  console.log('🧹 Clearing all session data');
-
   // Clear all storage
   localStorage.clear();
   sessionStorage.clear();
@@ -21,8 +19,6 @@ export function clearSessionAndRedirect() {
 }
 
 export function forceSessionRefresh() {
-  console.log('🔄 Forcing session refresh');
-
   // Clear NextAuth specific storage
   Object.keys(localStorage).forEach(key => {
     if (key.startsWith('next-auth')) {

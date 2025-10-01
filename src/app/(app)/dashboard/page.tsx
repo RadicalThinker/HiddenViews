@@ -76,20 +76,6 @@ function EventsDashboard() {
   const { toast } = useToast();
   const { data: session, status, update } = useSession();
 
-  // Log session status only when it changes
-  console.log('📊 Dashboard Session:', {
-    status,
-    user: session?.user?.username || 'none',
-    timestamp: new Date().toISOString()
-  });
-
-  // Log when session changes (only significant changes)
-  useEffect(() => {
-    if (status === 'authenticated' || status === 'unauthenticated') {
-      console.log('🔄 Session Status:', status, '| User:', session?.user?.username || 'none');
-    }
-  }, [status, session?.user?.username]);
-
   // Fetch events
   const fetchEvents = useCallback(async () => {
     if (!session?.user?._id) return; // Don't fetch if no user session
@@ -118,7 +104,9 @@ function EventsDashboard() {
         setUserStats(stats);
       }
     } catch (error) {
-      console.error('Error fetching events:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Error fetching events:', error);
+      }
       toast({
         title: 'Error',
         description: 'Failed to fetch events',
@@ -160,23 +148,31 @@ function EventsDashboard() {
   };
 
   const refreshSession = async () => {
-    console.log('🔄 Manually refreshing session...');
     try {
       await update();
-      console.log('✅ Session refresh completed');
     } catch (error) {
-      console.log('❌ Session refresh failed:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to refresh session',
+        variant: 'destructive',
+      });
     }
   };
 
   const testSessionAPI = async () => {
-    console.log('🧪 Testing NextAuth session API...');
     try {
       const response = await fetch('/api/auth/session');
       const data = await response.json();
-      console.log('🧪 Session API Response:', data);
+      toast({
+        title: 'Session Data',
+        description: data ? 'Session active' : 'No session',
+      });
     } catch (error) {
-      console.log('🧪 Session API Error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch session',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -196,23 +192,6 @@ function EventsDashboard() {
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300';
     }
   };
-
-  // Mobile session debugging
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobile && status === 'unauthenticated') {
-        console.log('📱 MOBILE SESSION ISSUE:', {
-          status,
-          hasSession: !!session,
-          cookies: document.cookie,
-          url: window.location.href,
-          isSecure: window.isSecureContext
-        });
-      }
-    }
-  }, [status, session]);
-  console.log("Session" , )
 
   if (!session && status !== 'loading') {
     return (
@@ -235,7 +214,7 @@ function EventsDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-4 py-8 w-screen overflow-hidden">
       {/* <SessionRefresher /> */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -252,7 +231,7 @@ function EventsDashboard() {
             Create Event
           </Button>
         </Link>
-        <Button
+        {/* <Button
           variant="outline"
           onClick={refreshSession}
           className="flex items-center gap-2"
@@ -266,7 +245,7 @@ function EventsDashboard() {
           className="flex items-center gap-2"
         >
           Test API
-        </Button>
+        </Button> */}
       </div>
 
       {/* Stats Overview with Wobble Effect */}

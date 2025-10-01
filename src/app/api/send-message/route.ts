@@ -1,5 +1,6 @@
 import UserModel, { Message } from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error adding message:', error);
+    logger.error('Error sending message', error, { username });
     return Response.json(
       { message: 'Internal server error', success: false },
       { status: 500 }

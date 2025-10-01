@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/options';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   await dbConnect();
@@ -39,7 +40,7 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    console.error('An unexpected error occurred:', error);
+    logger.error('Error fetching messages', error, { userId: _user._id });
     return Response.json(
       { message: 'Internal server error', success: false },
       { status: 500 }

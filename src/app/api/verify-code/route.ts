@@ -1,13 +1,18 @@
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   // Connect to the database
   await dbConnect();
 
+  let username: string | undefined;
+  
   try {
-    const { username, code } = await request.json();
-    const decodedUsername = decodeURIComponent(username);
+    const body = await request.json();
+    username = body.username;
+    const code = body.code;
+    const decodedUsername = decodeURIComponent(username || '');
     
     const user = await UserModel.findOne({ username: decodedUsername });
 
@@ -32,7 +37,7 @@ export async function POST(request: Request) {
     
     if (isDevelopment && isDummyCode) {
       // Skip verification checks for dummy code in development
-      console.log('🔧 Development mode: Using dummy OTP 123456');
+      logger.debug('Development mode: Using dummy OTP');
     } else {
       // Check if verification code is correct
       if (user.verifyCode !== code) {
@@ -69,7 +74,7 @@ export async function POST(request: Request) {
     );
 
   } catch (error) {
-    console.error('Error verifying code:', error);
+    logger.error('Error verifying code', error, { username });
     return Response.json(
       { success: false, message: 'Error verifying code' },
       { status: 500 }
