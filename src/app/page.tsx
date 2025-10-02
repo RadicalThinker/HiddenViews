@@ -419,8 +419,8 @@ export default function Home() {
   }, []);
 
   return (
-    <>
-      <div className="bg-[#080808] min-h-screen">
+    <div className="w-screen overflow-hidden">
+      <div className="bg-[#080808] min-h-screen ">
       <NavbarDemo >
       <Suspense fallback={null}>
         <div className="absolute z-0 inset-0 h-[123vh] w-full hidden md:block">
@@ -603,7 +603,7 @@ export default function Home() {
               
               <div className="relative z-10">
                 <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
-                  <FiTarget className="w-12 h-12 mb-4 text-gray-500 group-hover:rose-600 transition-all duration-500 group-hover:drop-shadow-lg" />
+                  <FiTarget className="w-12 h-12 mb-4 text-gray-500 group-hover:text-rose-600 transition-all duration-500 group-hover:drop-shadow-lg" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-gray-100 group-hover:text-white transition-all duration-300">
                   AI Report
@@ -777,6 +777,6 @@ export default function Home() {
           © 2025 HiddenViews. Give Reviews while keeping your identity hidden.
         </p>
       </footer>
-    </>
+    </div>
   );
 }
