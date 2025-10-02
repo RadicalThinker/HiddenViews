@@ -216,7 +216,7 @@ function EventsDashboard() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* <SessionRefresher /> */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between gap-1 items-center mb-8">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-secondary-900 dark:text-secondary-100">
             My Events
@@ -296,7 +296,7 @@ function EventsDashboard() {
           <div className="flex items-center justify-between h-full">
             <div>
               <p className="text-sm md:text-md font-medium dark:text-blue-100 mb-2">
-                Average Rating
+                Avg. Rating
               </p>
               <p className="text-2xl md:text-3xl font-bold dark:text-white">
                 {userStats.averageRating.toFixed(1)}

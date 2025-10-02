@@ -385,12 +385,12 @@ function ProfilePage() {
       </div>
 
       {/* Gemini Report */}
-      <Card className="mb-8 dark:bg-customPrimary-100">
+      <Card className="mb-8 dark:bg-customPrimary-100 w-full overflow-hidden">
         <CardHeader className="md:flex-row md:items-center md:justify-between">
           <CardTitle className="flex items-center gap-2 mb-3">
             <Sparkles className="w-5 h-5 text-purple-600" /> AI Review Overview
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-1">
             <Button
               variant="outline"
               size="sm"
@@ -403,6 +403,7 @@ function ProfilePage() {
             <Button
               onClick={generateReport}
               disabled={isGenerating || isReviewsLoading || !allReviews.length}
+              
             >
               {isGenerating ? "Generating..." : "Regenerate Report"}
             </Button>

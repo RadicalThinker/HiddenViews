@@ -512,7 +512,7 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+          <div className="grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             <div className="group relative bg-gradient-to-br from-bg-200/40 to-bg-200/60 border border-bg-300/50 rounded-2xl p-8 
               hover:border-bg-300/30 hover:shadow-2xl hover:shadow-bg-300/10 
               transition-all duration-700 ease-out cursor-pointer overflow-hidden
