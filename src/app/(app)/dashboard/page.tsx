@@ -218,16 +218,16 @@ function EventsDashboard() {
       {/* <SessionRefresher /> */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
+          <h1 className="text-xl md:text-2xl font-bold text-secondary-900 dark:text-secondary-100">
             My Events
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-slate-600 dark:text-slate-400 mt-2 text-xs md:text-sm">
             Manage your events and collect anonymous feedback
           </p>
         </div>
         <Link href="/dashboard/create-event">
           <Button className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3 h-3  lg:w-4 lg:h-4" />
             Create Event
           </Button>
         </Link>
@@ -249,60 +249,60 @@ function EventsDashboard() {
       </div>
 
       {/* Stats Overview with Wobble Effect */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <WobbleCard containerClassName="col-span-1 bg-gray-200 dark:bg-black h-36 border-black border-solid">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+        <WobbleCard containerClassName=" bg-gray-200 dark:bg-black h-24 md:h-36 border-black border-solid">
           <div className="flex items-center justify-between h-full ">
             <div>
-              <p className="text-sm font-medium dark:text-blue-100 mb-1">
+              <p className="text-sm md:text-md font-medium dark:text-blue-100 mb-2">
                 Total Events
               </p>
-              <p className="text-3xl font-bold dark:text-white">
+              <p className="text-2xl md:text-3xl font-bold dark:text-white">
                 {userStats.totalEvents}
               </p>
             </div>
-            <Calendar className="w-10 h-10 dark:text-blue-200 opacity-80" />
+            <Calendar className=" w-6 h-6  md:w-10 md:h-10 dark:text-blue-200 opacity-80" />
           </div>
         </WobbleCard>
 
-        <WobbleCard containerClassName="col-span-1 bg-gray-200 dark:bg-black h-36">
+        <WobbleCard containerClassName="bg-gray-200 dark:bg-black h-24 md:h-36 border-black border-solid">
           <div className="flex items-center justify-between h-full">
             <div>
-              <p className="text-sm font-medium dark:text-yellow-100 mb-1">
+              <p className="text-sm md:text-md font-medium dark:text-blue-100 mb-2">
                 Total Reviews
               </p>
-              <p className="text-3xl font-bold dark:text-white">
+              <p className="text-2xl md:text-3xl font-bold dark:text-white">
                 {userStats.totalReviews}
               </p>
             </div>
-            <Star className="w-10 h-10 dark:text-yellow-200 opacity-80" />
+            <Star className="w-6 h-6  md:w-10 md:h-10 dark:text-blue-200 opacity-80" />
           </div>
         </WobbleCard>
 
-        <WobbleCard containerClassName="col-span-1 bg-gray-200 dark:bg-black h-36">
+        <WobbleCard containerClassName="bg-gray-200 dark:bg-black h-24 md:h-36 border-black border-solid">
           <div className="flex items-center justify-between h-full">
             <div>
-              <p className="text-sm font-medium dark:text-purple-100 mb-1">
+              <p className="text-sm md:text-md font-medium dark:text-blue-100 mb-2">
                 Total Queries
               </p>
-              <p className="text-3xl font-bold dark:text-white">
+              <p className="text-2xl md:text-3xl font-bold dark:text-white">
                 {userStats.totalQueries}
               </p>
             </div>
-            <MessageSquare className="w-10 h-10 dark:text-purple-200 opacity-80" />
+            <MessageSquare className="w-6 h-6  md:w-10 md:h-10 dark:text-blue-200 opacity-80" />
           </div>
         </WobbleCard>
 
-        <WobbleCard containerClassName="col-span-1 bg-gray-200 dark:bg-black h-36">
+        <WobbleCard containerClassName="bg-gray-200 dark:bg-black h-24 md:h-36 border-black border-solid">
           <div className="flex items-center justify-between h-full">
             <div>
-              <p className="text-sm font-medium dark:text-green-100 mb-1">
+              <p className="text-sm md:text-md font-medium dark:text-blue-100 mb-2">
                 Average Rating
               </p>
-              <p className="text-3xl font-bold dark:text-white">
+              <p className="text-2xl md:text-3xl font-bold dark:text-white">
                 {userStats.averageRating.toFixed(1)}
               </p>
             </div>
-            <TrendingUp className="w-10 h-10 dark:text-green-200 opacity-80" />
+            <TrendingUp className="w-6 h-6  md:w-10 md:h-10 dark:text-blue-200 opacity-80" />
           </div>
         </WobbleCard>
       </div>

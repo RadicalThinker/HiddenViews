@@ -238,7 +238,7 @@ function Sidebar() {
             ) : (
               <div className={cn("space-y-2", isCollapsed && "flex flex-col items-center")}>
                 <Link href="/sign-in" className="w-full">
-                  <Button variant="ghost" size="sm" className="w-full">
+                  <Button variant="ghost" size="sm" className="w-full dark:hover:text-zinc-950">
                     {isCollapsed ? "In" : "Sign In"}
                   </Button>
                 </Link>

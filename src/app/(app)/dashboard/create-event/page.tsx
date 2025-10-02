@@ -122,12 +122,12 @@ export default function CreateEvent() {
   return (
     <div className="container  px-4 py-8 mb-6">
       <Link href="/dashboard">
-        <Button variant="ghost" size="sm" className='mb-8'>
-          <ArrowLeft className="w-4 h-4 mr-2" />
+        <Button variant="ghost" size="sm" className='mb-8 dark:text-zinc-950'>
+          <ArrowLeft className="w-4 h-4 mr-2 dark:text-zinc-950" />
           Back to Events
         </Button>
       </Link>
-      <div className="flex items-center gap-4 ">
+      <div className="flex items-center gap-4 mb-2 ">
 
         <div>
           <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
