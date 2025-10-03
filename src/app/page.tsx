@@ -419,9 +419,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-screen overflow-hidden">
-      <div className="bg-[#080808] min-h-screen ">
-      <NavbarDemo >
+    <div className="w-screen">
+<NavbarDemo >
+      <div className="bg-[#080808] min-h-screen overflow-hidden">
+      
       <Suspense fallback={null}>
         <div className="absolute z-0 inset-0 h-[123vh] w-full hidden md:block">
           <DotGrid
@@ -703,9 +704,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-      </NavbarDemo>
+      
     </div>
-
+</NavbarDemo>
     {/* Contact Section - Outside DotGrid for better performance */}
     <div className="bg-[#080808]">
       <section id="contact" className="py-20 px-4 md:px-12 lg:px-24">
