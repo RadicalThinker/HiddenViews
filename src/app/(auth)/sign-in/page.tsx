@@ -44,6 +44,20 @@ export default function SignInForm() {
       });
 
       if (result?.error) {
+                // Check if error is for unverified user
+        if (result.error.startsWith('UNVERIFIED:')) {
+          const username = result.error.split(':')[1];
+          toast({
+            title: 'Email Not Verified',
+            description: 'Please verify your email to continue. Redirecting...',
+            variant: 'default',
+          });
+          // Redirect to verification page
+          setTimeout(() => {
+            router.push(`/verify/${encodeURIComponent(username)}`);
+          }, 1500);
+          return;
+        }
         if (result.error === 'CredentialsSignin') {
           toast({
             title: 'Login Failed',
