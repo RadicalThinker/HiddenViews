@@ -49,13 +49,25 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (isPasswordCorrect) {
-            logger.debug('Auth success', { username: user.username });
+            logger.info('Auth success', { 
+              username: user.username,
+              userId: user._id,
+              timestamp: new Date().toISOString()
+            });
             return user;
           } else {
+            logger.warn('Auth failed - incorrect password', { 
+              identifier: credentials?.identifier,
+              timestamp: new Date().toISOString()
+            });
             throw new Error('Incorrect password');
           }
         } catch (err: any) {
-          logger.error('Authentication error', err, { identifier: credentials?.identifier });
+          logger.error('Authentication error', err, { 
+            identifier: credentials?.identifier,
+            errorMessage: err.message,
+            timestamp: new Date().toISOString()
+          });
           throw new Error(err.message || 'An error occurred during authentication');
         }
       },
@@ -93,15 +105,12 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   
-  // Trust host configuration for production
-  // trustHost: true,
-  
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Use 'none' for production CORS
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for same-origin in production
         path: '/',
         secure: process.env.NODE_ENV === 'production', // Only secure in production
         domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost', // No domain restriction in production for mobile compatibility
@@ -110,7 +119,7 @@ export const authOptions: NextAuthOptions = {
     callbackUrl: {
       name: `next-auth.callback-url`,
       options: {
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost',
@@ -120,7 +129,7 @@ export const authOptions: NextAuthOptions = {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost',
@@ -131,4 +140,39 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/sign-in',
   },
+  
+  events: {
+    async signIn({ user, account }) {
+      logger.info('Sign in event', {
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        provider: account?.provider,
+        timestamp: new Date().toISOString()
+      });
+    },
+    async signOut({ token }) {
+      logger.info('Sign out event', {
+        userId: token?._id,
+        username: token?.username,
+        timestamp: new Date().toISOString()
+      });
+    },
+    async createUser({ user }) {
+      logger.info('User created event', {
+        userId: user.id,
+        email: user.email,
+        timestamp: new Date().toISOString()
+      });
+    },
+    async session({ session, token }) {
+      logger.debug('Session event', {
+        userId: token?._id,
+        username: token?.username,
+        timestamp: new Date().toISOString()
+      });
+    },
+  },
+  
+  debug: process.env.NODE_ENV === 'development',
 };

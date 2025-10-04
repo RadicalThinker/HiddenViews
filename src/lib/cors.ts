@@ -9,9 +9,24 @@ export const corsOptions = {
 };
 
 export function getCorsHeaders(origin?: string) {
-  const allowedOrigin = process.env.NODE_ENV === 'production' 
-    ? (process.env.NEXTAUTH_URL || origin || '*')
-    : 'http://localhost:3000';
+  let allowedOrigin;
+  
+  if (process.env.NODE_ENV === 'production') {
+    // For same-origin requests (when origin is null/undefined), use the site URL
+    if (!origin) {
+      allowedOrigin = process.env.NEXTAUTH_URL || 'https://hiddenreviews.yashcore.app';
+    } else {
+      // For cross-origin requests, validate against allowed origins
+      const productionOrigins = [
+        'https://hiddenreviews.yashcore.app',
+        process.env.NEXTAUTH_URL
+      ].filter(Boolean);
+      
+      allowedOrigin = productionOrigins.includes(origin) ? origin : 'https://hiddenreviews.yashcore.app';
+    }
+  } else {
+    allowedOrigin = origin || 'http://localhost:3000';
+  }
 
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
