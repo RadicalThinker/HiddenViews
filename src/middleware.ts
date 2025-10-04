@@ -18,8 +18,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const origin = request.headers.get('origin') || '';
   
-  // Handle CORS for API routes
-  if (pathname.startsWith('/api/')) {
+  // Handle CORS for API routes (except NextAuth routes which handle their own CORS)
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
     // Handle preflight requests
     if (request.method === 'OPTIONS') {
       return new NextResponse(null, {

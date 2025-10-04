@@ -105,6 +105,9 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   
+  // Use default host handling for production
+  useSecureCookies: process.env.NODE_ENV === 'production',
+
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
