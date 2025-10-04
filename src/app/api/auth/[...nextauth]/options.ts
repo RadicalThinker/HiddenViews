@@ -74,16 +74,29 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // If user is provided (during sign-in), set the token
       if (user) {
-        logger.debug('Setting JWT token', { username: user.username });
+        logger.info('Creating JWT token', { 
+          username: user.username,
+          userId: user._id,
+          trigger,
+          timestamp: new Date().toISOString()
+        });
         token._id = user._id?.toString();
         token.username = user.username;
         token.email = user.email;
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
       }
+
+      logger.debug('JWT callback executed', {
+        hasToken: !!token,
+        tokenId: token?._id,
+        username: token?.username,
+        trigger,
+        timestamp: new Date().toISOString()
+      });
 
       return token;
     },
@@ -93,6 +106,18 @@ export const authOptions: NextAuthOptions = {
         session.user.username = token.username;
         session.user.isVerified = token.isVerified;
         session.user.isAcceptingMessages = token.isAcceptingMessages;
+        
+        logger.debug('Session callback executed', {
+          userId: token._id,
+          username: token.username,
+          hasSession: !!session,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        logger.warn('Session callback - no token found', {
+          hasSession: !!session,
+          timestamp: new Date().toISOString()
+        });
       }
 
       return session;
@@ -113,10 +138,10 @@ export const authOptions: NextAuthOptions = {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for same-origin in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production', // Only secure in production
-        domain: process.env.NODE_ENV === 'production' ? 'hiddenreviews.yashcore.app' : 'localhost', // Use full subdomain for production
+        secure: process.env.NODE_ENV === 'production',
+        // Let NextAuth handle domain automatically
       },
     },
     callbackUrl: {
@@ -125,7 +150,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? 'hiddenreviews.yashcore.app' : 'localhost',
+        // Let NextAuth handle domain automatically
       },
     },
     csrfToken: {
@@ -135,7 +160,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? 'hiddenreviews.yashcore.app' : 'localhost',
+        // Let NextAuth handle domain automatically
       },
     },
   },
