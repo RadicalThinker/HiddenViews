@@ -52,18 +52,18 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   // Handle navigation requests
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          return caches.open(CACHE_NAME)
-            .then((cache) => {
-              return cache.match(OFFLINE_URL);
-            });
-        })
-    );
-    return;
-  }
+  // if (event.request.mode === 'navigate') {
+  //   event.respondWith(
+  //     fetch(event.request)
+  //       .catch(() => {
+  //         return caches.open(CACHE_NAME)
+  //           .then((cache) => {
+  //             return cache.match(OFFLINE_URL);
+  //           });
+  //       })
+  //   );
+  //   return;
+  // }
 
   // Handle other requests with cache-first strategy
   event.respondWith(
