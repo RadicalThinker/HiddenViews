@@ -48,48 +48,62 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - advanced caching strategy
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
-  if (event.request.method !== 'GET') return;
+  // Skip API routes, auth routes, and non-GET requests
+  if (event.request.method !== 'GET' || 
+      event.request.url.includes('/api/') ||
+      event.request.url.includes('/auth/') ||
+      event.request.url.includes('/_next/') ||
+      event.request.url.includes('/socket.io/')) {
+    return;
+  }
 
   // Handle navigation requests
-  // if (event.request.mode === 'navigate') {
-  //   event.respondWith(
-  //     fetch(event.request)
-  //       .catch(() => {
-  //         return caches.open(CACHE_NAME)
-  //           .then((cache) => {
-  //             return cache.match(OFFLINE_URL);
-  //           });
-  //       })
-  //   );
-  //   return;
-  // }
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          return caches.open(CACHE_NAME)
+            .then((cache) => {
+              return cache.match(OFFLINE_URL);
+            });
+        })
+    );
+    return;
+  }
 
-  // Handle other requests with cache-first strategy
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        
-        return fetch(event.request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
+  // Handle other requests with cache-first strategy for static assets only
+  if (event.request.destination === 'image' || 
+      event.request.destination === 'style' || 
+      event.request.destination === 'script' ||
+      event.request.destination === 'font' ||
+      event.request.url.includes('/icons/') ||
+      event.request.url.includes('/manifest.json')) {
+    
+    event.respondWith(
+      caches.match(event.request)
+        .then((response) => {
+          if (response) {
             return response;
-          });
-      })
-  );
+          }
+          
+          return fetch(event.request)
+            .then((response) => {
+              // Don't cache non-successful responses
+              if (!response || response.status !== 200 || response.type !== 'basic') {
+                return response;
+              }
+
+              // Clone the response
+              const responseToCache = response.clone();
+
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+
+              return response;
+            });
+        })
+    );
+  }
 });
