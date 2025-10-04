@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleCors } from '@/lib/cors';
+import { getCorsHeaders, handleCorsPreflightRequest } from '@/lib/cors';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
@@ -12,10 +12,8 @@ export async function GET(request: NextRequest) {
     timestamp: new Date().toISOString()
   });
 
-  const corsResponse = handleCors(request);
-  const corsHeaders = corsResponse instanceof NextResponse 
-    ? Object.fromEntries(corsResponse.headers.entries())
-    : corsResponse;
+  const origin = request.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin || undefined);
   
   return new NextResponse(
     JSON.stringify({
@@ -37,7 +35,7 @@ export async function GET(request: NextRequest) {
   );
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(request: NextRequest): Promise<NextResponse> {
   logger.info('CORS preflight request', {
     method: request.method,
     origin: request.headers.get('origin'),
@@ -45,5 +43,5 @@ export async function OPTIONS(request: NextRequest) {
     timestamp: new Date().toISOString()
   });
 
-  return handleCors(request);
+  return handleCorsPreflightRequest(request);
 }

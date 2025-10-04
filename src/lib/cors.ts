@@ -35,6 +35,27 @@ export function getCorsHeaders(origin?: string) {
   };
 }
 
+export function handleCorsPreflightRequest(req: NextRequest): NextResponse {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin || undefined);
+
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+
+export function addCorsHeaders(response: NextResponse, origin?: string): NextResponse {
+  const corsHeaders = getCorsHeaders(origin);
+  
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+  
+  return response;
+}
+
+// Legacy function for backward compatibility - returns headers object only
 export function handleCors(req: NextRequest, response?: NextResponse) {
   const origin = req.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin || undefined);
