@@ -116,7 +116,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax', // Use 'lax' for same-origin in production
         path: '/',
         secure: process.env.NODE_ENV === 'production', // Only secure in production
-        domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost', // No domain restriction in production for mobile compatibility
+        domain: process.env.NODE_ENV === 'production' ? 'hiddenreviews.yashcore.app' : 'localhost', // Use full subdomain for production
       },
     },
     callbackUrl: {
@@ -125,7 +125,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost',
+        domain: process.env.NODE_ENV === 'production' ? 'hiddenreviews.yashcore.app' : 'localhost',
       },
     },
     csrfToken: {
@@ -135,7 +135,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost',
+        domain: process.env.NODE_ENV === 'production' ? 'hiddenreviews.yashcore.app' : 'localhost',
       },
     },
   },
