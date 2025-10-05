@@ -213,9 +213,9 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Use root domain with dot prefix for subdomain support
+        // Use specific subdomain only, not root domain
         ...(process.env.NODE_ENV === 'production' && {
-          domain: '.yashcore.app'
+          domain: 'hiddenreviews.yashcore.app'
         })
       },
     },
@@ -226,7 +226,7 @@ export const authOptions: NextAuthOptions = {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         ...(process.env.NODE_ENV === 'production' && {
-          domain: '.yashcore.app'
+          domain: 'hiddenreviews.yashcore.app'
         })
       },
     },
@@ -238,7 +238,7 @@ export const authOptions: NextAuthOptions = {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         ...(process.env.NODE_ENV === 'production' && {
-          domain: '.yashcore.app'
+          domain: 'hiddenreviews.yashcore.app'
         })
       },
     },

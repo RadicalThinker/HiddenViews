@@ -1,5 +1,13 @@
 const CACHE_NAME = 'hiddenviews-v1';
 const OFFLINE_URL = '/offline.html';
+const ALLOWED_DOMAIN = 'hiddenreviews.yashcore.app';
+
+// Check if we're on the correct domain
+const isCorrectDomain = () => {
+  return self.location.hostname === ALLOWED_DOMAIN || 
+         self.location.hostname === 'localhost' ||
+         self.location.hostname === '127.0.0.1';
+};
 
 const urlsToCache = [
   '/',
@@ -14,6 +22,11 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
+  if (!isCorrectDomain()) {
+    console.log('Service worker not installed - wrong domain');
+    return;
+  }
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -28,6 +41,13 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches and claim clients
 self.addEventListener('activate', (event) => {
+  if (!isCorrectDomain()) {
+    console.log('Service worker not activated - wrong domain');
+    // Unregister this service worker if on wrong domain
+    self.registration.unregister();
+    return;
+  }
+  
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
@@ -48,6 +68,11 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - minimal caching strategy
 self.addEventListener('fetch', (event) => {
+  // Domain check - don't intercept requests if on wrong domain
+  if (!isCorrectDomain()) {
+    return;
+  }
+  
   // Only handle GET requests for specific static assets
   if (event.request.method !== 'GET') {
     return;
