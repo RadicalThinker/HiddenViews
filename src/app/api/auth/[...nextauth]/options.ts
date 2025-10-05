@@ -5,6 +5,14 @@ import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import { logger } from '@/lib/logger';
 
+// Add this at the top to see what's being loaded
+console.log('🔍 NextAuth Configuration Loading:', {
+  NODE_ENV: process.env.NODE_ENV,
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? '✓ Set' : '✗ Missing',
+  timestamp: new Date().toISOString()
+});
+
 // Validate environment configuration
 const validateEnvironment = () => {
   const authUrl = process.env.NEXTAUTH_URL;
@@ -22,12 +30,20 @@ const validateEnvironment = () => {
     }
     
     if (!authUrl.startsWith('https://')) {
-      logger.error('NEXTAUTH_URL must use HTTPS in production', { authUrl });
+      logger.error('NEXTAUTH_URL must start with https:// in production', { authUrl });
       throw new Error('NEXTAUTH_URL must use HTTPS in production');
     }
     
     if (authUrl.endsWith('/')) {
-      logger.warn('NEXTAUTH_URL should not have trailing slash', { authUrl });
+      logger.warn('NEXTAUTH_URL should not end with a trailing slash', { authUrl });
+    }
+
+    // Additional validation for your specific domain
+    if (!authUrl.includes('hiddenreviews.yashcore.app')) {
+      logger.error('NEXTAUTH_URL does not match expected domain', { 
+        authUrl, 
+        expected: 'https://hiddenreviews.yashcore.app' 
+      });
     }
   }
   
@@ -111,6 +127,17 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, trigger }) {
+      console.log('🔐 JWT Callback Triggered:', {
+        trigger,
+        hasUser: !!user,
+        hasToken: !!token,
+        tokenId: token?._id,
+        userId: user?._id,
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV,
+        authUrl: process.env.NEXTAUTH_URL
+      });
+
       // If user is provided (during sign-in), set the token
       if (user) {
         logger.info('Creating JWT token', { 
@@ -124,6 +151,12 @@ export const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
+
+        console.log('✅ JWT Token Created:', {
+          tokenId: token._id,
+          username: token.username,
+          hasAllFields: !!(token._id && token.username && token.email)
+        });
       }
 
       logger.debug('JWT callback executed', {
@@ -177,6 +210,10 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        // Use root domain with dot prefix for subdomain support
+        ...(process.env.NODE_ENV === 'production' && {
+          domain: '.yashcore.app'
+        })
       },
     },
     callbackUrl: {
@@ -185,6 +222,9 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        ...(process.env.NODE_ENV === 'production' && {
+          domain: '.yashcore.app'
+        })
       },
     },
     csrfToken: {
@@ -194,6 +234,9 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        ...(process.env.NODE_ENV === 'production' && {
+          domain: '.yashcore.app'
+        })
       },
     },
   },
