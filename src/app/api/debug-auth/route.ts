@@ -70,10 +70,18 @@ export async function GET(request: NextRequest) {
       headers,
       timestamp: new Date().toISOString(),
       diagnosis: {
-        authenticated: !!(token && session),
+        authenticated: !!session, // Authentication based on session, not just token
         hasAllCookies: cookies.some(c => c.name.includes('session-token')) && 
                         cookies.some(c => c.name.includes('csrf-token')),
-        recommendations: []
+        authenticationStatus: session ? 'AUTHENTICATED ✅' : 'NOT AUTHENTICATED ❌',
+        recommendations: session ? [
+          'User is successfully authenticated',
+          'Session is active and valid',
+          'Authentication flow is working correctly'
+        ] : [
+          'User is not authenticated',
+          'Please sign in to create a session'
+        ]
       }
     });
   } catch (error: any) {
