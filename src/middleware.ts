@@ -49,38 +49,47 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Auth middleware logic
+  // Auth middleware logic - try multiple methods to detect authentication
   const token = await getToken({ 
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
+    cookieName: 'next-auth.session-token',
+    secureCookie: process.env.NODE_ENV === 'production',
   });
+
+  // Also check for session cookie directly as a fallback
+  const sessionCookie = request.cookies.get('next-auth.session-token');
+  const isAuthenticated = !!(token || sessionCookie);
+
   const url = request.nextUrl;
 
-  console.log('Middleware debug:', {
+  console.log('🔍 Middleware debug:', {
     pathname: url.pathname,
     hasToken: !!token,
+    hasSessionCookie: !!sessionCookie,
+    isAuthenticated,
     tokenId: token?._id,
     username: token?.username,
-    cookies: request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })),
-    userAgent: request.headers.get('user-agent'),
+    cookieNames: request.cookies.getAll().map(c => c.name),
+    userAgent: request.headers.get('user-agent')?.substring(0, 50),
     timestamp: new Date().toISOString()
   });
 
   // Redirect to dashboard if the user is already authenticated
   // and trying to access sign-in, sign-up, or home page
   if (
-    token &&
+    isAuthenticated &&
     (url.pathname.startsWith('/sign-in') ||
       url.pathname.startsWith('/sign-up') ||
       url.pathname.startsWith('/verify') ||
       url.pathname === '/')
   ) {
-    console.log('Redirecting authenticated user to dashboard');
+    console.log('✅ Redirecting authenticated user to dashboard');
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  if (!token && url.pathname.startsWith('/dashboard')) {
-    console.log('Redirecting unauthenticated user to sign-in');
+  if (!isAuthenticated && url.pathname.startsWith('/dashboard')) {
+    console.log('❌ Redirecting unauthenticated user to sign-in');
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
