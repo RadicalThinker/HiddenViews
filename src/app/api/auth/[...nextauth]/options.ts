@@ -54,8 +54,11 @@ const validateEnvironment = () => {
   });
 };
 
-// Validate on module load
-validateEnvironment();
+// Validate on module load (only in runtime, not during build)
+if (typeof window === 'undefined' && process.env.NODE_ENV !== 'test' && !process.env.NEXT_PHASE) {
+  // Delay validation to avoid build-time issues
+  setTimeout(validateEnvironment, 100);
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
