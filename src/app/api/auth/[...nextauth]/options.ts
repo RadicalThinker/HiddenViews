@@ -5,6 +5,42 @@ import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import { logger } from '@/lib/logger';
 
+// Validate environment configuration
+const validateEnvironment = () => {
+  const authUrl = process.env.NEXTAUTH_URL;
+  const secret = process.env.NEXTAUTH_SECRET;
+  
+  if (!secret) {
+    logger.error('NEXTAUTH_SECRET is not set');
+    throw new Error('NEXTAUTH_SECRET environment variable is required');
+  }
+  
+  if (process.env.NODE_ENV === 'production') {
+    if (!authUrl) {
+      logger.error('NEXTAUTH_URL is not set in production');
+      throw new Error('NEXTAUTH_URL environment variable is required in production');
+    }
+    
+    if (!authUrl.startsWith('https://')) {
+      logger.error('NEXTAUTH_URL must use HTTPS in production', { authUrl });
+      throw new Error('NEXTAUTH_URL must use HTTPS in production');
+    }
+    
+    if (authUrl.endsWith('/')) {
+      logger.warn('NEXTAUTH_URL should not have trailing slash', { authUrl });
+    }
+  }
+  
+  logger.info('Environment validation passed', {
+    NODE_ENV: process.env.NODE_ENV,
+    NEXTAUTH_URL: authUrl,
+    hasSecret: !!secret
+  });
+};
+
+// Validate on module load
+validateEnvironment();
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -138,29 +174,26 @@ export const authOptions: NextAuthOptions = {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+        sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Let NextAuth handle domain automatically
       },
     },
     callbackUrl: {
       name: `next-auth.callback-url`,
       options: {
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+        sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Let NextAuth handle domain automatically
       },
     },
     csrfToken: {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+        sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        // Let NextAuth handle domain automatically
       },
     },
   },

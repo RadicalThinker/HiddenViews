@@ -41,6 +41,7 @@ export default function SignInForm() {
         redirect: false,
         identifier: data.identifier,
         password: data.password,
+        callbackUrl: '/dashboard',
       });
 
       if (result?.error) {
@@ -77,8 +78,12 @@ export default function SignInForm() {
           description: 'Signed in successfully!',
         });
 
-        // Simple redirect to dashboard
-        window.location.href = '/dashboard';
+        // Use NextAuth callback URL or redirect to dashboard
+        if (result.url) {
+          window.location.href = result.url;
+        } else {
+          router.push('/dashboard');
+        }
       }
     } catch (error) {
       if (process.env.NODE_ENV !== 'production') {

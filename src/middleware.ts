@@ -50,8 +50,21 @@ export async function middleware(request: NextRequest) {
   }
 
   // Auth middleware logic
-  const token = await getToken({ req: request });
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
   const url = request.nextUrl;
+
+  console.log('Middleware debug:', {
+    pathname: url.pathname,
+    hasToken: !!token,
+    tokenId: token?._id,
+    username: token?.username,
+    cookies: request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value })),
+    userAgent: request.headers.get('user-agent'),
+    timestamp: new Date().toISOString()
+  });
 
   // Redirect to dashboard if the user is already authenticated
   // and trying to access sign-in, sign-up, or home page
@@ -62,10 +75,12 @@ export async function middleware(request: NextRequest) {
       url.pathname.startsWith('/verify') ||
       url.pathname === '/')
   ) {
+    console.log('Redirecting authenticated user to dashboard');
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   if (!token && url.pathname.startsWith('/dashboard')) {
+    console.log('Redirecting unauthenticated user to sign-in');
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
