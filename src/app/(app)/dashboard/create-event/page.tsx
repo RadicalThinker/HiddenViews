@@ -122,8 +122,8 @@ export default function CreateEvent() {
   return (
     <div className="container  px-4 py-8 mb-6">
       <Link href="/dashboard">
-        <Button variant="ghost" size="sm" className='mb-8 dark:text-zinc-950'>
-          <ArrowLeft className="w-4 h-4 mr-2 dark:text-zinc-950" />
+        <Button variant="ghost" size="sm" className='mb-8 dark:hover:text-zinc-950'>
+          <ArrowLeft className="w-4 h-4 mr-2 dark:hover:text-zinc-950" />
           Back to Events
         </Button>
       </Link>

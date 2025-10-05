@@ -429,17 +429,17 @@ export default function EventPage() {
             size="sm"
             onClick={() => setActiveTab('review')}
             disabled={!eventData.settings.isAcceptingReviews}
-            className="flex items-center gap-2 dark:hover:text-zinc-950"
+            className="flex items-center gap-1 dark:hover:text-zinc-950 text-sm"
           >
-            <Star className="w-4 h-4" />
-            Leave Review
+            <Star className="w-4 h-4 text-sm" />
+           Review
           </Button>
           <Button
             variant={activeTab === 'query' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setActiveTab('query')}
             disabled={!eventData.settings.isAcceptingQueries}
-            className="flex items-center gap-2 dark:hover:text-zinc-950"
+            className="flex items-center gap-1 dark:hover:text-zinc-950 text-sm"
           >
             <MessageSquare className="w-4 h-4" />
             Ask Question
@@ -448,7 +448,7 @@ export default function EventPage() {
             variant={activeTab === 'answered' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setActiveTab('answered')}
-            className="flex items-center gap-2 dark:hover:text-zinc-950"
+            className="flex items-center gap-1 dark:hover:text-zinc-950 text-sm"
           >
             <CheckCircle className="w-4 h-4" />
             Answered Q&A

@@ -107,11 +107,11 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-bg-100">
+    <div className="flex justify-center items-center min-h-screen bg-bg-100 p-4">
       <div className="w-full max-w-md p-8 space-y-8 bg-customPrimary-100 rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-            Join HiddenViews
+            Join <p className='italic'>HiddenViews</p>
           </h1>
           <p className="mb-4 text-text-200/80">Sign up to start your anonymous adventure</p>
         </div>
