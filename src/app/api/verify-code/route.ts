@@ -32,13 +32,13 @@ export async function POST(request: Request) {
     }
 
     // Development mode: Accept dummy OTP
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const isDummyCode = code === '123456';
+    // const isDevelopment = process.env.NODE_ENV === 'development';
+    // const isDummyCode = code === '123456';
     
-    if (isDevelopment && isDummyCode) {
-      // Skip verification checks for dummy code in development
-      logger.debug('Development mode: Using dummy OTP');
-    } else {
+    // if (isDevelopment && isDummyCode) {
+    //   // Skip verification checks for dummy code in development
+    //   logger.debug('Development mode: Using dummy OTP');
+    // } else {
       // Check if verification code is correct
       if (user.verifyCode !== code) {
         return Response.json(
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-    }
+    // }
 
     // Verify the user
     user.isVerified = true;

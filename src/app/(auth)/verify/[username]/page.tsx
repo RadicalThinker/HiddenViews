@@ -75,7 +75,7 @@ export default function VerifyAccount() {
             We&apos;ve sent a verification code to your email address for{' '}
             <span className="font-semibold">{decodeURIComponent(params.username)}</span>
           </p>
-          {process.env.NODE_ENV === 'development' && (
+          {/* {process.env.NODE_ENV === 'development' && (
             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-sm text-yellow-800">
                 <strong>Development Mode:</strong> You can use dummy OTP{' '}
@@ -84,7 +84,7 @@ export default function VerifyAccount() {
                 </code>
               </p>
             </div>
-          )}
+          )} */}
         </div>
         
         <Form {...form}>

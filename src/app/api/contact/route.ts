@@ -16,21 +16,8 @@ export async function POST(req: Request) {
     const { name, email, message } = contactSchema.parse(body);
 
     try {
-      // In development, log email details for testing
-      if (process.env.NODE_ENV === 'development') {
-        console.log('\n📧 EMAIL TEST - Contact Form');
-        console.log('From: HiddenViews Contact <onboarding@resend.dev>');
-        console.log('To: voicesecret9@gmail.com');
-        console.log('Subject:', `New Contact Form Message from ${name}`);
-        console.log('Sender Name:', name);
-        console.log('Sender Email:', email);
-        console.log('Message:', message);
-        console.log('Resend API Key present:', !!process.env.RESEND_API_KEY);
-        console.log('================================\n');
-      }
-      
       const response = await resend.emails.send({
-        from: 'HiddenViews Contact <onboarding@resend.dev>',
+        from: 'HiddenViews Contact <verify@hiddenreviews.yashcore.app>',
         to: ['voicesecret9@gmail.com'],
         subject: `New Contact Form Message from ${name}`,
         html: `
@@ -64,15 +51,6 @@ export async function POST(req: Request) {
       });
     } catch (emailError) {
       console.error('Resend error:', emailError);
-      
-      // In development, show detailed error info
-      if (process.env.NODE_ENV === 'development') {
-        console.error('🚫 CONTACT EMAIL SEND FAILED:');
-        console.error('Error details:', JSON.stringify(emailError, null, 2));
-        console.error('Resend API Key present:', !!process.env.RESEND_API_KEY);
-        console.error('Sender details:', { name, email, message: message.substring(0, 50) + '...' });
-      }
-      
       return NextResponse.json(
         { success: false, error: 'Failed to send email' },
         { status: 500 }
