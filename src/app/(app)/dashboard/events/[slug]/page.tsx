@@ -17,7 +17,8 @@ import {
   Eye,
   Users,
   TrendingUp,
-  RefreshCcw
+  RefreshCcw,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +26,16 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ReviewCard } from '@/components/ReviewCard';
 import { QueryCard } from '@/components/QueryCard';
 import { FilterBar, FilterOptions } from '@/components/FilterBar';
@@ -86,6 +97,8 @@ export default function EventManagement() {
   const [queries, setQueries] = useState<Query[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterOptions>({
     search: '',
@@ -258,6 +271,35 @@ export default function EventManagement() {
         description: 'Failed to update query status',
         variant: 'destructive',
       });
+    }
+  };
+
+  // Delete event
+  const deleteEvent = async () => {
+    if (!event) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await axios.delete(`/api/events/${slug}`);
+      if (response.data.success) {
+        toast({
+          title: 'Event Deleted',
+          description: 'Your event has been deleted successfully',
+        });
+        // Redirect to dashboard after a short delay
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1500);
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast({
+        title: 'Error',
+        description: axiosError.response?.data.message ?? 'Failed to delete event',
+        variant: 'destructive',
+      });
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -443,6 +485,14 @@ export default function EventManagement() {
           <Button variant="outline" onClick={copyEventLink} className='dark:bg-bg-200 dark:hover:bg-bg-300'>
             <Copy className="w-4 h-4 mr-2" />
             Copy Link
+          </Button>
+          <Button 
+            variant="destructive" 
+            onClick={() => setShowDeleteDialog(true)}
+            className="hover:bg-red-700"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Event
           </Button>
         </div>
       </div>
@@ -668,6 +718,38 @@ export default function EventManagement() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="dark:bg-bg-200 dark:border-gray-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="dark:text-white">Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="dark:text-gray-400">
+              This will permanently delete the event &quot;{event.title}&quot; and all associated reviews and queries.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting} className="dark:bg-bg-300 dark:hover:bg-bg-400">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteEvent}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Event'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

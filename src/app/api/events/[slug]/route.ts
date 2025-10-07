@@ -144,3 +144,64 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  await dbConnect();
+
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { success: false, message: 'You must be logged in to delete an event' },
+        { status: 401 }
+      );
+    }
+
+    const { slug } = params;
+
+    // Find the event and verify ownership
+    const event = await EventModel.findOne({ slug, isActive: true });
+    
+    if (!event) {
+      return NextResponse.json(
+        { success: false, message: 'Event not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if the user is the creator of the event
+    if (event.createdBy.toString() !== session.user._id) {
+      return NextResponse.json(
+        { success: false, message: 'You are not authorized to delete this event' },
+        { status: 403 }
+      );
+    }
+
+    // Soft delete: Mark as inactive instead of actually deleting
+    await EventModel.findOneAndUpdate(
+      { slug },
+      { 
+        isActive: false,
+        updatedAt: new Date()
+      }
+    );
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Event deleted successfully',
+      },
+      { status: 200 }
+    );
+
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
