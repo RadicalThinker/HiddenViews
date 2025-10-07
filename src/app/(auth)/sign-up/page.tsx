@@ -28,16 +28,35 @@ export default function SignUpForm() {
   const [usernameMessage, setUsernameMessage] = useState('');
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const debouncedUsername = useDebounce(username, 300);
 
   const router = useRouter();
   const { toast } = useToast();
 
+  // Detect and follow system theme
+  useEffect(() => {
+    const updateTheme = (isDark: boolean) => {
+      setTheme(isDark ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    updateTheme(prefersDark);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      updateTheme(e.matches);
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       username: '',
-      email: '', // Keep email in default values
+      email: '',
       password: '',
     },
   });
@@ -107,13 +126,13 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-bg-100 p-4">
-      <div className="w-full max-w-md p-8 space-y-8 bg-customPrimary-100 rounded-lg shadow-md">
+    <div className={`flex justify-center items-center min-h-screen ${theme === 'dark' ? 'bg-bg-100' : 'bg-gray-50'} p-4`}>
+      <div className={`w-full max-w-md p-8 space-y-8 ${theme === 'dark' ? 'bg-customPrimary-100' : 'bg-white'} rounded-lg shadow-md`}>
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+          <h1 className={`text-4xl font-extrabold tracking-tight lg:text-5xl mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             Join <p className='italic'>HiddenViews</p>
           </h1>
-          <p className="mb-4 text-text-200/80">Sign up to start your anonymous adventure</p>
+          <p className={`mb-4 ${theme === 'dark' ? 'text-text-200/80' : 'text-gray-600'}`}>Sign up to start your anonymous adventure</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -182,9 +201,9 @@ export default function SignUpForm() {
           </form>
         </Form>
         <div className="text-center mt-4">
-          <p>
+          <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
             Already a member?{' '}
-            <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
+            <Link href="/sign-in" className={`${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}>
               Sign in
             </Link>
           </p>

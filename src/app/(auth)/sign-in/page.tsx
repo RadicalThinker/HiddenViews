@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as z from 'zod';
 import { signIn } from 'next-auth/react';
 import axios from 'axios';
@@ -25,7 +25,27 @@ import { useSession } from 'next-auth/react';
 export default function SignInForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const { update } = useSession();
+
+  // Detect and follow system theme
+  useEffect(() => {
+    const updateTheme = (isDark: boolean) => {
+      setTheme(isDark ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    updateTheme(prefersDark);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      updateTheme(e.matches);
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -117,13 +137,13 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-bg-100 p-4">
-      <div className="w-full max-w-md p-8 space-y-8 bg-customPrimary-100 rounded-lg shadow-lg">
+    <div className={`flex justify-center items-center min-h-screen ${theme === 'dark' ? 'bg-bg-100' : 'bg-gray-50'} p-4`}>
+      <div className={`w-full max-w-md p-8 space-y-8 ${theme === 'dark' ? 'bg-customPrimary-100' : 'bg-white'} rounded-lg shadow-lg`}>
         <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+          <h1 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             Welcome Back to HiddenViews
           </h1>
-          <p className="mb-4 text-text-200/80">Sign in to manage your event reviews</p>
+          <p className={`mb-4 ${theme === 'dark' ? 'text-text-200/80' : 'text-gray-600'}`}>Sign in to manage your event reviews</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -150,7 +170,7 @@ export default function SignInForm() {
               )}
             />
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+              <Link href="/forgot-password" className={`text-sm ${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}>
                 Forgot password?
               </Link>
             </div>
@@ -167,9 +187,9 @@ export default function SignInForm() {
           </form>
         </Form>
         <div className="text-center mt-4">
-          <p className="text-sm">
+          <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
             Not a member yet?{' '}
-            <Link href="/sign-up" className="text-blue-600 hover:text-blue-800">
+            <Link href="/sign-up" className={`${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}>
               Sign up
             </Link>
           </p>

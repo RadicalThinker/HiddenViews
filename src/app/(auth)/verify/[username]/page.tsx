@@ -16,7 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios, { AxiosError } from 'axios';
 import { Loader2, Mail } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -25,6 +25,25 @@ export default function VerifyAccount() {
   const params = useParams<{ username: string }>();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  // Detect and follow system theme
+  useEffect(() => {
+    const updateTheme = (isDark: boolean) => {
+      setTheme(isDark ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    updateTheme(prefersDark);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      updateTheme(e.matches);
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
@@ -62,16 +81,16 @@ export default function VerifyAccount() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-bg-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-customPrimary-100 rounded-lg shadow-md">
+    <div className={`flex justify-center items-center min-h-screen ${theme === 'dark' ? 'bg-bg-100' : 'bg-gray-50'}`}>
+      <div className={`w-full max-w-md p-8 space-y-8 ${theme === 'dark' ? 'bg-customPrimary-100' : 'bg-white'} rounded-lg shadow-md`}>
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 mb-4">
-            <Mail className="h-6 w-6 text-blue-600" />
+          <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${theme === 'dark' ? 'bg-blue-100' : 'bg-blue-50'} mb-4`}>
+            <Mail className={`h-6 w-6 ${theme === 'dark' ? 'text-blue-600' : 'text-blue-600'}`} />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight lg:text-4xl mb-6">
+          <h1 className={`text-3xl font-extrabold tracking-tight lg:text-4xl mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             Verify Your Account
           </h1>
-          <p className="mb-4 text-text-200/80">
+          <p className={`mb-4 ${theme === 'dark' ? 'text-text-200/80' : 'text-gray-600'}`}>
             Please check your email for a verification code sent to your email address for{' '}
             <span className="font-semibold">{decodeURIComponent(params.username)}</span>
           </p>
@@ -110,7 +129,7 @@ export default function VerifyAccount() {
         </Form>
 
         <div className="text-center">
-          <p className="text-sm text-text-200/60">
+          <p className={`text-sm ${theme === 'dark' ? 'text-text-200/60' : 'text-gray-500'}`}>
             Didn&apos;t receive the code?{' '}
             <button
               onClick={async () => {
@@ -131,7 +150,7 @@ export default function VerifyAccount() {
                   });
                 }
               }}
-              className="text-blue-600 hover:text-blue-800 underline"
+              className={`${theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'} underline`}
               disabled={isSubmitting}
             >
               Resend verification email
