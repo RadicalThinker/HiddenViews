@@ -419,10 +419,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-screen overflow-x-hidden min-h-screen  bg-[#080808]">
+    <div className="min-h-screen w-full  bg-[#080808]">
       <NavbarDemo >
         <Suspense fallback={null}>
-        <div className="absolute z-0 inset-0 h-[123vh] w-full hidden md:block">
+        <div className="absolute z-0 inset-0 h-[123vh] hidden md:block overflow-hidden">
           <DotGrid
             dotSize={8}
             gap={16}
@@ -441,7 +441,7 @@ export default function Home() {
       
 
       {/* Main content */}
-      <main className="flex-grow min-h-screen flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 py-12  text-white relative z-1">
+      <main className="flex-grow min-h-screen flex flex-col items-center justify-center px-4 md:px-8 lg:px-12 xl:px-24 py-12 pt-24 text-white relative z-1 max-w-full overflow-hidden">
         <section className="text-center mb-8 md:mb-12">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
             Give  <FlipWords words={words} />Feedbacks
@@ -480,7 +480,7 @@ export default function Home() {
         </div>
 
         {/* Carousel for Messages */}
-        <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 overflow-hidden">
           <Carousel
             autoplay={true}
             autoplayDelay={3000}
@@ -495,7 +495,7 @@ export default function Home() {
 
       {/* Features Section - Lazy loaded */}
       <Suspense fallback={<div className="py-20 px-4 md:px-12 lg:px-24 relative z-10 animate-pulse bg-gray-900/20 rounded-lg" />}>
-        <section id="features" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
+        <section id="features" className="py-20 px-4 md:px-8 lg:px-12 xl:px-24 relative z-10 max-w-full overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <div className="inline-block">
@@ -677,7 +677,7 @@ export default function Home() {
       </Suspense>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4 md:px-12 lg:px-24 relative z-10">
+      <section id="pricing" className="py-20 px-4 md:px-8 lg:px-12 xl:px-24 relative z-10 max-w-full overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-20">
             <div className="inline-block">
@@ -710,7 +710,7 @@ export default function Home() {
 </NavbarDemo>
     {/* Contact Section - Outside DotGrid for better performance */}
     <div className="bg-[#080808]">
-      <section id="contact" className="py-20 px-4 md:px-12 lg:px-24">
+      <section id="contact" className="py-20 px-4 md:px-8 lg:px-12 xl:px-24 max-w-full overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-20">
             <div className="inline-block">
