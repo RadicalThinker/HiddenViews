@@ -87,8 +87,21 @@ export async function POST(
         await event.populate('createdBy', 'username');
         const creatorUsername = (event.createdBy as any).username;
         
+        // In development, log email details for testing
+        if (process.env.NODE_ENV === 'development') {
+          console.log('\n📧 EMAIL TEST - Query Reply Notification');
+          console.log('From: HiddenViews <onboarding@resend.dev>');
+          console.log('To:', senderEmail);
+          console.log('Subject:', `Your question about "${event.title}" has been answered!`);
+          console.log('Event Creator:', creatorUsername);
+          console.log('Query Content:', query.content);
+          console.log('Reply Content:', content);
+          console.log('Event URL:', `${process.env.NEXTAUTH_URL}/e/${event.slug}`);
+          console.log('================================\n');
+        }
+        
         await resend.emails.send({
-          from: 'HiddenViews <noreply@hiddenviews.com>',
+          from: 'HiddenViews <onboarding@resend.dev>',
           to: [senderEmail],
           subject: `Your question about "${event.title}" has been answered!`,
           html: `
@@ -120,6 +133,15 @@ export async function POST(
         });
       } catch (emailError) {
         console.error('Error sending email notification:', emailError);
+        
+        // In development, show detailed error info
+        if (process.env.NODE_ENV === 'development') {
+          console.error('🚫 EMAIL SEND FAILED:');
+          console.error('Error details:', JSON.stringify(emailError, null, 2));
+          console.error('Resend API Key present:', !!process.env.RESEND_API_KEY);
+          console.error('Sender email:', senderEmail);
+        }
+        
         // Don't fail the request if email fails
       }
     }
