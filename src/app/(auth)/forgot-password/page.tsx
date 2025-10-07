@@ -68,11 +68,11 @@ export default function ForgotPasswordForm() {
               Check Your Email
             </h1>
             <p className="mb-6 text-text-200/80">
-              We've sent password reset instructions to your email address. 
+              We&apos;ve sent password reset instructions to your email address. 
               Please check your inbox and follow the link to reset your password.
             </p>
             <p className="text-sm text-text-200/60 mb-6">
-              If you don't see the email, check your spam folder or wait a few minutes and try again.
+              If you don&apos;t see the email, check your spam folder or wait a few minutes and try again.
             </p>
             <Link href="/sign-in">
               <Button variant="outline" className="w-full">
@@ -97,7 +97,7 @@ export default function ForgotPasswordForm() {
             Forgot Password?
           </h1>
           <p className="mb-4 text-text-200/80">
-            No worries! Enter your email address and we'll send you a link to reset your password.
+            No worries! Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
         

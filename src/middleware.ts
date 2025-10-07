@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
 
 export const config = {
   matcher: [
@@ -24,14 +24,14 @@ const corsOptions = {
 };
 
 export default withAuth(
-  function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-    const origin = request.headers.get('origin') || '';
+  function middleware(req) {
+    const { pathname } = req.nextUrl;
+    const origin = req.headers.get('origin') || '';
     
     // Handle CORS for API routes (except NextAuth routes which handle their own CORS)
     if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
       // Handle preflight requests
-      if (request.method === 'OPTIONS') {
+      if (req.method === 'OPTIONS') {
         return new NextResponse(null, {
           status: 200,
           headers: {
@@ -60,7 +60,6 @@ export default withAuth(
     }
 
     // For authenticated routes, NextAuth middleware will handle authentication
-    console.log('🔐 Middleware: User is authenticated, allowing access to:', pathname);
     return NextResponse.next();
   },
   {
@@ -81,16 +80,12 @@ export default withAuth(
             pathname.startsWith('/verify') || 
             pathname.startsWith('/forgot-password') || 
             pathname.startsWith('/reset-password')) {
-          // If user is already authenticated, redirect to dashboard
-          if (token) {
-            return false; // This will redirect to the default page (dashboard)
-          }
-          return true;
+          // If user is already authenticated, they should be redirected away from auth pages
+          return !token;
         }
         
         // For dashboard and other protected routes, require authentication
         if (pathname.startsWith('/dashboard') || pathname.startsWith('/settings')) {
-          console.log('🔒 Middleware: Checking auth for protected route:', pathname, 'Has token:', !!token);
           return !!token;
         }
         
@@ -100,13 +95,6 @@ export default withAuth(
     },
     pages: {
       signIn: '/sign-in',
-    },
-    // Redirect authenticated users trying to access auth pages to dashboard
-    async redirect({ url, baseUrl, token }) {
-      if (token && (url.includes('/sign-in') || url.includes('/sign-up') || url.includes('/verify') || url.includes('/forgot-password') || url.includes('/reset-password'))) {
-        return `${baseUrl}/dashboard`;
-      }
-      return url.startsWith(baseUrl) ? url : baseUrl;
     },
   }
 );
