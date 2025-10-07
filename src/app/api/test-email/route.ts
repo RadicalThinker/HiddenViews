@@ -3,12 +3,12 @@ import { resend } from '@/lib/resend';
 
 export async function POST(request: Request) {
   // Only allow in development
-  if (process.env.NODE_ENV !== 'development') {
-    return NextResponse.json(
-      { success: false, message: 'Email testing only available in development' },
-      { status: 403 }
-    );
-  }
+  // if (process.env.NODE_ENV !== 'development') {
+  //   return NextResponse.json(
+  //     { success: false, message: 'Email testing only available in development' },
+  //     { status: 403 }
+  //   );
+  // }
 
   try {
     const { to, type } = await request.json();
