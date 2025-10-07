@@ -12,7 +12,7 @@ export async function sendVerificationEmail(
     logger.debug('Sending verification email', { email, username });
     
     const response = await resend.emails.send({
-      from: "Yash <voicesecret9@gmail.com>",
+      from: "Acme <onboarding@resend.dev>",
       to: email,
       subject: "HiddenViews | Verification Code",
       react: VerificationEmail({ username, otp: verifyCode }),
