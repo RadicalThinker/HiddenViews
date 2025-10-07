@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { withAuth } from 'next-auth/middleware';
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/sign-in', '/sign-up', '/', '/verify/:path*', '/forgot-password', '/reset-password', '/api/:path*'],
+  matcher: [
+    '/dashboard/:path*', 
+    '/settings/:path*',
+    '/sign-in', 
+    '/sign-up', 
+    '/', 
+    '/verify/:path*', 
+    '/forgot-password', 
+    '/reset-password', 
+    '/api/:path*'
+  ],
 };
 
 // CORS configuration
@@ -13,72 +23,90 @@ const corsOptions = {
   'Access-Control-Max-Age': '86400',
 };
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const origin = request.headers.get('origin') || '';
-  
-  // Handle CORS for API routes (except NextAuth routes which handle their own CORS)
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
-    // Handle preflight requests
-    if (request.method === 'OPTIONS') {
-      return new NextResponse(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production' 
-            ? (process.env.NEXTAUTH_URL || origin)
-            : 'http://localhost:3000',
-          ...corsOptions,
-        },
+export default withAuth(
+  function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+    const origin = request.headers.get('origin') || '';
+    
+    // Handle CORS for API routes (except NextAuth routes which handle their own CORS)
+    if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
+      // Handle preflight requests
+      if (request.method === 'OPTIONS') {
+        return new NextResponse(null, {
+          status: 200,
+          headers: {
+            'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production' 
+              ? (process.env.NEXTAUTH_URL || origin)
+              : 'http://localhost:3000',
+            ...corsOptions,
+          },
+        });
+      }
+
+      // Continue with the request and add CORS headers to the response
+      const response = NextResponse.next();
+      
+      response.headers.set('Access-Control-Allow-Origin', 
+        process.env.NODE_ENV === 'production' 
+          ? (process.env.NEXTAUTH_URL || origin)
+          : 'http://localhost:3000'
+      );
+      
+      Object.entries(corsOptions).forEach(([key, value]) => {
+        response.headers.set(key, value);
       });
+
+      return response;
     }
 
-    // Continue with the request and add CORS headers to the response
-    const response = NextResponse.next();
-    
-    response.headers.set('Access-Control-Allow-Origin', 
-      process.env.NODE_ENV === 'production' 
-        ? (process.env.NEXTAUTH_URL || origin)
-        : 'http://localhost:3000'
-    );
-    
-    Object.entries(corsOptions).forEach(([key, value]) => {
-      response.headers.set(key, value);
-    });
-
-    return response;
+    // For authenticated routes, NextAuth middleware will handle authentication
+    console.log('🔐 Middleware: User is authenticated, allowing access to:', pathname);
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl;
+        
+        // Allow access to public routes and API routes
+        if (pathname.startsWith('/api/') || 
+            pathname.startsWith('/e/') ||
+            pathname === '/') {
+          return true;
+        }
+        
+        // Allow access to auth pages when not authenticated
+        if (pathname.startsWith('/sign-in') || 
+            pathname.startsWith('/sign-up') || 
+            pathname.startsWith('/verify') || 
+            pathname.startsWith('/forgot-password') || 
+            pathname.startsWith('/reset-password')) {
+          // If user is already authenticated, redirect to dashboard
+          if (token) {
+            return false; // This will redirect to the default page (dashboard)
+          }
+          return true;
+        }
+        
+        // For dashboard and other protected routes, require authentication
+        if (pathname.startsWith('/dashboard') || pathname.startsWith('/settings')) {
+          console.log('🔒 Middleware: Checking auth for protected route:', pathname, 'Has token:', !!token);
+          return !!token;
+        }
+        
+        // Default: allow access
+        return true;
+      },
+    },
+    pages: {
+      signIn: '/sign-in',
+    },
+    // Redirect authenticated users trying to access auth pages to dashboard
+    async redirect({ url, baseUrl, token }) {
+      if (token && (url.includes('/sign-in') || url.includes('/sign-up') || url.includes('/verify') || url.includes('/forgot-password') || url.includes('/reset-password'))) {
+        return `${baseUrl}/dashboard`;
+      }
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
   }
-
-  // Auth middleware logic - try multiple methods to detect authentication
-  const token = await getToken({ 
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-    cookieName: 'next-auth.session-token',
-    secureCookie: process.env.NODE_ENV === 'production',
-  });
-
-  // Also check for session cookie directly as a fallback
-  const sessionCookie = request.cookies.get('next-auth.session-token');
-  const isAuthenticated = !!(token || sessionCookie);
-
-  const url = request.nextUrl;
-
-  // Redirect to dashboard if the user is already authenticated
-  // and trying to access sign-in, sign-up, or home page
-  if (
-    isAuthenticated &&
-    (url.pathname.startsWith('/sign-in') ||
-      url.pathname.startsWith('/sign-up') ||
-      url.pathname.startsWith('/verify') ||
-      url.pathname.startsWith('/forgot-password') ||
-      url.pathname.startsWith('/reset-password') ||
-      url.pathname === '/')
-  ) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  if (!isAuthenticated && url.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
-  }
-
-  return NextResponse.next();
-}
+);

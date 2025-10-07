@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/options';
 
@@ -8,13 +7,7 @@ export async function GET(request: NextRequest) {
     // Get all cookies
     const cookies = request.cookies.getAll();
     
-    // Try to get token
-    const token = await getToken({ 
-      req: request as any,
-      secret: process.env.NEXTAUTH_SECRET 
-    });
-    
-    // Try to get session
+    // Get session (the primary method for authentication)
     const session = await getServerSession(authOptions);
     
     // Get request headers
@@ -46,16 +39,6 @@ export async function GET(request: NextRequest) {
         hasSessionToken: cookies.some(c => c.name.includes('session-token')),
         hasCsrfToken: cookies.some(c => c.name.includes('csrf-token')),
       },
-      token: token ? {
-        hasToken: true,
-        userId: token._id,
-        username: token.username,
-        email: token.email,
-        isVerified: token.isVerified,
-      } : {
-        hasToken: false,
-        reason: 'No JWT token found'
-      },
       session: session ? {
         hasSession: true,
         user: {
@@ -70,17 +53,18 @@ export async function GET(request: NextRequest) {
       headers,
       timestamp: new Date().toISOString(),
       diagnosis: {
-        authenticated: !!session, // Authentication based on session, not just token
+        authenticated: !!session,
         hasAllCookies: cookies.some(c => c.name.includes('session-token')) && 
                         cookies.some(c => c.name.includes('csrf-token')),
         authenticationStatus: session ? 'AUTHENTICATED ✅' : 'NOT AUTHENTICATED ❌',
         recommendations: session ? [
           'User is successfully authenticated',
           'Session is active and valid',
-          'Authentication flow is working correctly'
+          'Session-based authentication is working correctly'
         ] : [
           'User is not authenticated',
-          'Please sign in to create a session'
+          'Please sign in to create a session',
+          'Check that cookies are being set properly'
         ]
       }
     });
