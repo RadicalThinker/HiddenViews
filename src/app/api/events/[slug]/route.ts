@@ -180,14 +180,8 @@ export async function DELETE(
       );
     }
 
-    // Soft delete: Mark as inactive instead of actually deleting
-    await EventModel.findOneAndUpdate(
-      { slug },
-      { 
-        isActive: false,
-        updatedAt: new Date()
-      }
-    );
+    // Permanently delete the event from database
+    await EventModel.findOneAndDelete({ slug });
 
     return NextResponse.json(
       {
