@@ -31,31 +31,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // Development mode: Accept dummy OTP
-    // const isDevelopment = process.env.NODE_ENV === 'development';
-    // const isDummyCode = code === '123456';
-    
-    // if (isDevelopment && isDummyCode) {
-    //   // Skip verification checks for dummy code in development
-    //   logger.debug('Development mode: Using dummy OTP');
-    // } else {
-      // Check if verification code is correct
-      if (user.verifyCode !== code) {
-        return Response.json(
-          { success: false, message: 'Invalid verification code' },
-          { status: 400 }
-        );
-      }
+    // Check if verification code is correct
+    if (user.verifyCode !== code) {
+      return Response.json(
+        { success: false, message: 'Invalid verification code' },
+        { status: 400 }
+      );
+    }
 
-      // Check if verification code has expired
-      const currentTime = new Date();
-      if (currentTime > user.verifyCodeExpiry) {
-        return Response.json(
-          { success: false, message: 'Verification code has expired' },
-          { status: 400 }
-        );
-      }
-    // }
+    // Check if verification code has expired
+    const currentTime = new Date();
+    if (currentTime > user.verifyCodeExpiry) {
+      return Response.json(
+        { success: false, message: 'Verification code has expired' },
+        { status: 400 }
+      );
+    }
 
     // Verify the user
     user.isVerified = true;

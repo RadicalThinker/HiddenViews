@@ -85,15 +85,10 @@ export async function POST(request: Request) {
           );
         }
 
-        const isDevelopment = process.env.NODE_ENV === 'development';
-        const developmentMessage = isDevelopment 
-          ? ' For development, you can use dummy OTP: 123456' 
-          : '';
-
         return Response.json(
           {
             success: true,
-            message: `User registered successfully. Please check your email for verification code.${developmentMessage}`,
+            message: `User registered successfully. Please check your email for verification code.`,
             redirectUrl: `/verify/${encodeURIComponent(username)}`,
             emailSent: true,
           },
@@ -143,15 +138,10 @@ export async function POST(request: Request) {
         );
       }
 
-      const isDevelopment = process.env.NODE_ENV === 'development';
-      const developmentMessage = isDevelopment 
-        ? ' For development, you can use dummy OTP: 123456' 
-        : '';
-
       return Response.json(
         {
           success: true,
-          message: `User registered successfully. Please check your email for verification code.${developmentMessage}`,
+          message: `User registered successfully. Please check your email for verification code.`,
           redirectUrl: `/verify/${encodeURIComponent(username)}`,
           emailSent: true,
         },
@@ -201,15 +191,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    const developmentMessage = isDevelopment 
-      ? ' For development, you can use dummy OTP: 123456' 
-      : '';
-
     return Response.json(
       {
         success: true,
-        message: `User registered successfully. Please check your email for verification code.${developmentMessage}`,
+        message: `User registered successfully. Please check your email for verification code.`,
         redirectUrl: `/verify/${encodeURIComponent(username)}`,
         emailSent: true,
       },

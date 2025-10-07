@@ -419,7 +419,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-screen  min-h-screen  bg-[#080808]">
+    <div className="w-screen overflow-x-hidden min-h-screen  bg-[#080808]">
       <NavbarDemo >
         <Suspense fallback={null}>
         <div className="absolute z-0 inset-0 h-[123vh] w-full hidden md:block">

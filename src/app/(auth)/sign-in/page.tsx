@@ -149,6 +149,11 @@ export default function SignInForm() {
                 </FormItem>
               )}
             />
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+                Forgot password?
+              </Link>
+            </div>
             <Button className='w-full' type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>

@@ -82,6 +82,8 @@ export interface User extends Document {
   isVerified: boolean;
   verifyCode: string;
   verifyCodeExpiry: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpiry?: Date;
   isAcceptingMessages: boolean;
   theme: 'light' | 'dark' | 'system';
   events: mongoose.Types.ObjectId[]; // References to Event documents
@@ -124,6 +126,13 @@ const UserSchema: Schema<User> = new mongoose.Schema({
   verifyCodeExpiry: {
     type: Date,
     required: [true, 'Verify code expiry is required'],
+  },
+  resetPasswordToken: {
+    type: String,
+    trim: true,
+  },
+  resetPasswordExpiry: {
+    type: Date,
   },
   isAcceptingMessages: {
     type: Boolean,
