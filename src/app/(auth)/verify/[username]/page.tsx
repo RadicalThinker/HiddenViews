@@ -72,7 +72,7 @@ export default function VerifyAccount() {
             Verify Your Account
           </h1>
           <p className="mb-4 text-text-200/80">
-            We&apos;ve sent a verification code to your email address for{' '}
+            Please check your email for a verification code sent to your email address for{' '}
             <span className="font-semibold">{decodeURIComponent(params.username)}</span>
           </p>
           {/* {process.env.NODE_ENV === 'development' && (

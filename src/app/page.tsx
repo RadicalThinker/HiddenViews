@@ -419,11 +419,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="w-screen">
-<NavbarDemo >
-      <div className="bg-[#080808] min-h-screen overflow-hidden">
-      
-      <Suspense fallback={null}>
+    <div className="w-screen  min-h-screen  bg-[#080808]">
+      <NavbarDemo >
+        <Suspense fallback={null}>
         <div className="absolute z-0 inset-0 h-[123vh] w-full hidden md:block">
           <DotGrid
             dotSize={8}
@@ -438,6 +436,9 @@ export default function Home() {
           />
         </div>
       </Suspense>
+      <div className="overflow-hidden">
+      
+      
 
       {/* Main content */}
       <main className="flex-grow min-h-screen flex flex-col items-center justify-center px-4 md:px-12 lg:px-24 py-12  text-white relative z-1">

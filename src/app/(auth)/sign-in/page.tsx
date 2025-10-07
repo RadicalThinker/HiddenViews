@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import * as z from 'zod';
 import { signIn } from 'next-auth/react';
+import axios from 'axios';
 import {
   Form,
   FormField,
@@ -45,18 +46,34 @@ export default function SignInForm() {
       });
 
       if (result?.error) {
-                // Check if error is for unverified user
+        // Check if error is for unverified user
         if (result.error.startsWith('UNVERIFIED:')) {
           const username = result.error.split(':')[1];
-          toast({
-            title: 'Email Not Verified',
-            description: 'Please verify your email to continue. Redirecting...',
-            variant: 'default',
-          });
+          
+          // Automatically send verification email
+          try {
+            const emailResponse = await axios.post('/api/send-verification-on-signin', {
+              identifier: data.identifier
+            });
+            
+            toast({
+              title: 'Email Not Verified',
+              description: 'We\'ve sent a verification code to your email. Please check your inbox and verify your account.',
+              variant: 'default',
+            });
+          } catch (emailError) {
+            console.error('Failed to send verification email:', emailError);
+            toast({
+              title: 'Email Not Verified',
+              description: 'Please verify your email to continue. Click "Resend Email" on the verification page if needed.',
+              variant: 'default',
+            });
+          }
+          
           // Redirect to verification page
           setTimeout(() => {
             router.push(`/verify/${encodeURIComponent(username)}`);
-          }, 1500);
+          }, 2000);
           return;
         }
         if (result.error === 'CredentialsSignin') {
