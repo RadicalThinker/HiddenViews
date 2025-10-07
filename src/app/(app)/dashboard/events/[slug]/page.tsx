@@ -460,40 +460,45 @@ export default function EventManagement() {
         </Button>
       </Link>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
-            {event.title}
-          </h1>
-          {event.description && (
-            <p className="text-secondary-600 dark:text-secondary-400 mt-2">
-              {event.description}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-secondary-900 dark:text-secondary-100">
+              {event.title}
+            </h1>
+            {event.description && (
+              <p className="text-secondary-600 dark:text-secondary-400 mt-2">
+                {event.description}
+              </p>
+            )}
+            <p className="text-sm text-secondary-500 mt-2">
+              Created {formatSafeDate(event.createdAt)}
             </p>
-          )}
-          <p className="text-sm text-secondary-500 mt-2">
-            Created {formatSafeDate(event.createdAt)}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link href={`/e/${slug}`}>
-            <Button variant="outline" className="dark:bg-bg-200 dark:hover:bg-bg-300">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View Public Page
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/e/${slug}`}>
+              <Button variant="outline" className="dark:bg-bg-200 dark:hover:bg-bg-300 w-full sm:w-auto">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View Public Page
+              </Button>
+            </Link>
+            <Button 
+              variant="outline" 
+              onClick={copyEventLink} 
+              className='dark:bg-bg-200 dark:hover:bg-bg-300 w-full sm:w-auto'
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Copy Link
             </Button>
-          </Link>
-          <Button variant="outline" onClick={copyEventLink} className='dark:bg-bg-200 dark:hover:bg-bg-300'>
-            <Copy className="w-4 h-4 mr-2" />
-            Copy Link
-          </Button>
-          <Button 
-            variant="destructive" 
-            onClick={() => setShowDeleteDialog(true)}
-            className="hover:bg-red-700"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete Event
-          </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => setShowDeleteDialog(true)}
+              className="hover:bg-red-700 w-full sm:w-auto"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Event
+            </Button>
+          </div>
         </div>
       </div>
 

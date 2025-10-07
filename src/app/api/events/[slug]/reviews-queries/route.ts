@@ -27,7 +27,8 @@ export async function GET(
     // Find the event and verify ownership
     const event = await EventModel.findOne({ 
       slug, 
-      createdBy: _user._id 
+      createdBy: _user._id,
+      isActive: true 
     }).select('title description eventType slug isActive createdAt reviews queries stats settings');
 
     if (!event) {
