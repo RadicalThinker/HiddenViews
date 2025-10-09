@@ -8,7 +8,7 @@
    - Implemented production-ready logger (`src/lib/logger.ts`)
    - Removes debug logs in production
    - Keeps error and warning logs for troubleshooting
-   - All API routes updated to use logger
+   - All API routes updated to use logger instead of console
 
 2. **Security Headers**
    - Strict Transport Security (HSTS)
