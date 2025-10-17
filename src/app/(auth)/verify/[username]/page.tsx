@@ -26,6 +26,7 @@ export default function VerifyAccount() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [userEmail, setUserEmail] = useState<string>('');
 
   // Detect and follow system theme
   useEffect(() => {
@@ -44,6 +45,24 @@ export default function VerifyAccount() {
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
+
+  // Fetch user email based on username
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      try {
+        const response = await axios.get(`/api/get-user-email/${params.username}`);
+        if (response.data.success) {
+          setUserEmail(response.data.email);
+        }
+      } catch (error) {
+        console.error('Error fetching user email:', error);
+      }
+    };
+    
+    if (params.username) {
+      fetchUserEmail();
+    }
+  }, [params.username]);
 
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
@@ -91,8 +110,10 @@ export default function VerifyAccount() {
             Verify Your Account
           </h1>
           <p className={`mb-4 ${theme === 'dark' ? 'text-text-200/80' : 'text-gray-600'}`}>
-            Please check your email for a verification code sent to your email address for{' '}
-            <span className="font-semibold">{decodeURIComponent(params.username)}</span>
+            Please check your email for a verification code sent to{' '}
+            <span className="font-semibold">
+              {userEmail || decodeURIComponent(params.username)}
+            </span>
           </p>
 
         </div>
