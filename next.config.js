@@ -54,7 +54,7 @@ const nextConfig = {
             key: 'Access-Control-Allow-Origin',
             value: process.env.NODE_ENV === 'production' 
               ? (process.env.NEXTAUTH_URL || '*')
-              : 'http://localhost:3000'
+              : process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:8081,http://localhost:19006'
           },
           {
             key: 'Access-Control-Allow-Methods',
