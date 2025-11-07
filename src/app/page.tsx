@@ -9,6 +9,8 @@ import { Mail } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar, FiCheck,FiTarget  } from 'react-icons/fi';
 import Lenis from '@studio-freight/lenis';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 // Custom hook for intersection observer
 const useIntersectionObserver = (options = {}) => {
@@ -466,6 +468,15 @@ PricingCard.displayName = 'PricingCard';
 export default function Home() {
   const words = useMemo(() => FLIP_WORDS, []);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // Redirect to dashboard if user is logged in
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      router.push('/dashboard');
+    }
+  }, [status, session, router]);
 
   // Detect and follow system theme
   useEffect(() => {
