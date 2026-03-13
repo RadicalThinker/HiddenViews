@@ -86,6 +86,7 @@ export interface User extends Document {
   resetPasswordExpiry?: Date;
   isAcceptingMessages: boolean;
   theme: 'light' | 'dark' | 'system';
+  cloudMode: boolean; // Whether AI-powered cloud features are enabled
   events: mongoose.Types.ObjectId[]; // References to Event documents
   messages: Message[];
   profileStats: {
@@ -142,6 +143,10 @@ const UserSchema: Schema<User> = new mongoose.Schema({
     type: String,
     enum: ['light', 'dark', 'system'],
     default: 'system',
+  },
+  cloudMode: {
+    type: Boolean,
+    default: true, // AI-powered cloud features are enabled by default
   },
   events: [{
     type: mongoose.Schema.Types.ObjectId,

@@ -4,12 +4,13 @@ import React from 'react'
 import axios from 'axios'
 import { useSession, signOut } from 'next-auth/react'
 import { useToast } from '@/components/ui/use-toast'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Check, Loader2, LogOut, Shield } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Check, Cloud, CloudOff, Loader2, LogOut, Shield } from 'lucide-react'
 
 function SettingsPage() {
   const { data: session, status, update } = useSession()
@@ -27,6 +28,45 @@ function SettingsPage() {
   const [newPassword, setNewPassword] = React.useState('')
   const [confirmPassword, setConfirmPassword] = React.useState('')
   const [isSavingPassword, setIsSavingPassword] = React.useState(false)
+
+  const [cloudMode, setCloudMode] = React.useState<boolean>(true)
+  const [isLoadingCloudMode, setIsLoadingCloudMode] = React.useState(true)
+  const [isSavingCloudMode, setIsSavingCloudMode] = React.useState(false)
+
+  // Load current cloud mode setting
+  React.useEffect(() => {
+    if (status !== 'authenticated') return
+    axios.get('/api/update-settings')
+      .then((res) => {
+        if (res.data?.success) {
+          setCloudMode(res.data.settings.cloudMode ?? true)
+        }
+      })
+      .catch((error) => { console.error('Failed to load cloud mode setting:', error) })
+      .finally(() => setIsLoadingCloudMode(false))
+  }, [status])
+
+  const toggleCloudMode = async (enabled: boolean) => {
+    setIsSavingCloudMode(true)
+    try {
+      const res = await axios.patch('/api/update-settings', { cloudMode: enabled })
+      if (res.data?.success) {
+        setCloudMode(enabled)
+        toast({
+          title: enabled ? 'Cloud Mode enabled' : 'Cloud Mode disabled',
+          description: enabled
+            ? 'AI-powered features are now active.'
+            : 'AI-powered features have been turned off.',
+        })
+      } else {
+        toast({ title: 'Update failed', description: res.data?.message || 'Could not update cloud mode', variant: 'destructive' })
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.response?.data?.message || 'Failed to update cloud mode', variant: 'destructive' })
+    } finally {
+      setIsSavingCloudMode(false)
+    }
+  }
 
   const checkAvailability = async () => {
     if (!username || username === currentUsername) {
@@ -229,6 +269,37 @@ function SettingsPage() {
                 <span className="inline-flex items-center gap-2"><Shield className="w-4 h-4" /> Update Password</span>
               )}
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Cloud Mode */}
+      <Card className="mb-6 dark:bg-bg-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {cloudMode ? <Cloud className="w-5 h-5 text-primary-600" /> : <CloudOff className="w-5 h-5 text-secondary-400" />}
+            Cloud Mode
+          </CardTitle>
+          <CardDescription>
+            Cloud Mode enables AI-powered features such as review analytics and profile summaries using Google Gemini. Disable it to turn off all cloud AI processing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3">
+            {isLoadingCloudMode ? (
+              <Loader2 className="w-4 h-4 animate-spin text-secondary-400" />
+            ) : (
+              <Switch
+                id="cloudMode"
+                checked={cloudMode}
+                onCheckedChange={toggleCloudMode}
+                disabled={isSavingCloudMode}
+              />
+            )}
+            <Label htmlFor="cloudMode" className="cursor-pointer">
+              {cloudMode ? 'Enabled – AI features are active' : 'Disabled – AI features are off'}
+            </Label>
+            {isSavingCloudMode && <Loader2 className="w-4 h-4 animate-spin text-secondary-400" />}
           </div>
         </CardContent>
       </Card>
