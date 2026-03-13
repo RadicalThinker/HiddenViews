@@ -5,9 +5,7 @@ import UserModel from '@/model/User';
 import EventModel from '@/model/Event';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+import { getAIModel } from '@/lib/aiClient';
 
 export async function GET(request: NextRequest) {
   await dbConnect();
@@ -31,6 +29,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
         { status: 404 }
+      );
+    }
+
+    // Cloud mode check – AI analytics require cloud mode to be enabled
+    if (!user.cloudMode) {
+      return NextResponse.json(
+        { success: false, message: 'Cloud mode is disabled. Enable it in Settings to use AI analytics.' },
+        { status: 403 }
       );
     }
 
@@ -97,7 +103,7 @@ export async function GET(request: NextRequest) {
     Keep responses concise and actionable. Focus on genuine insights from the data.
     `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = getAIModel();
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();

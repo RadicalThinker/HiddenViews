@@ -1,13 +1,32 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/options";
+import dbConnect from "@/lib/dbConnect";
+import UserModel from "@/model/User";
 import { NextResponse } from "next/server";
-
-// Initialize the API client
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
-
-export const runtime = "edge";
+import { getAIModel } from "@/lib/aiClient";
 
 export async function POST(req: Request) {
   try {
+    await dbConnect();
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const userId = (session.user as any)._id;
+    const user = await UserModel.findById(userId).select("cloudMode");
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (!user.cloudMode) {
+      return NextResponse.json(
+        { error: "Cloud mode is disabled. Enable it in Settings to use AI features." },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const { reviews = [], userName, totalReviews, averageRating } = body as {
       reviews: string[];
@@ -23,7 +42,7 @@ export async function POST(req: Request) {
 
     const bullets = trimmed.map((r, i) => `${i + 1}. ${r}`).join("\n");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const model = getAIModel();
 
     const prompt = `You are an expert reviewer summarizer for an events feedback platform.
 Summarize the following user reviews and provide:
