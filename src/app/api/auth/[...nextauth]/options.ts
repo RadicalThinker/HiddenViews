@@ -202,47 +202,7 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   
-  // Use default host handling for production
-  useSecureCookies: process.env.NODE_ENV === 'production',
-
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        // Use specific subdomain only, not root domain
-        ...(process.env.NODE_ENV === 'production' && {
-          domain: 'hiddenreviews.yashcore.app'
-        })
-      },
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        ...(process.env.NODE_ENV === 'production' && {
-          domain: 'hiddenreviews.yashcore.app'
-        })
-      },
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        ...(process.env.NODE_ENV === 'production' && {
-          domain: 'hiddenreviews.yashcore.app'
-        })
-      },
-    },
-  },
+  // Let NextAuth handle secure cookies automatically based on NEXTAUTH_URL protocol
   
   pages: {
     signIn: '/sign-in',

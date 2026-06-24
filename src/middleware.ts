@@ -74,14 +74,21 @@ export default withAuth(
           return true;
         }
         
-        // Allow access to auth pages when not authenticated
+        // Auth pages: allow only unauthenticated users
         if (pathname.startsWith('/sign-in') || 
             pathname.startsWith('/sign-up') || 
-            pathname.startsWith('/verify') || 
             pathname.startsWith('/forgot-password') || 
             pathname.startsWith('/reset-password')) {
-          // If user is already authenticated, they should be redirected away from auth pages
-          return !token;
+          // If user is authenticated, redirect them to dashboard
+          if (token) {
+            return NextResponse.redirect(new URL('/dashboard', req.url));
+          }
+          return true;
+        }
+
+        // Verify page should be accessible regardless of auth state
+        if (pathname.startsWith('/verify')) {
+          return true;
         }
         
         // For dashboard and other protected routes, require authentication
