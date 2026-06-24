@@ -27,6 +27,17 @@ export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
     const origin = req.headers.get('origin') || '';
+    const token = req.nextauth.token;
+
+    // Redirect authenticated users away from auth pages to dashboard
+    if (token && (
+      pathname.startsWith('/sign-in') ||
+      pathname.startsWith('/sign-up') ||
+      pathname.startsWith('/forgot-password') ||
+      pathname.startsWith('/reset-password')
+    )) {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    }
     
     // Handle CORS for API routes (except NextAuth routes which handle their own CORS)
     if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
@@ -59,7 +70,7 @@ export default withAuth(
       return response;
     }
 
-    // For authenticated routes, NextAuth middleware will handle authentication
+    // For all other routes, NextAuth middleware will handle authentication
     return NextResponse.next();
   },
   {
@@ -74,20 +85,12 @@ export default withAuth(
           return true;
         }
         
-        // Auth pages: allow only unauthenticated users
+        // Auth pages and verify: allow through (redirect handled in middleware body)
         if (pathname.startsWith('/sign-in') || 
             pathname.startsWith('/sign-up') || 
             pathname.startsWith('/forgot-password') || 
-            pathname.startsWith('/reset-password')) {
-          // If user is authenticated, redirect them to dashboard
-          if (token) {
-            return NextResponse.redirect(new URL('/dashboard', req.url));
-          }
-          return true;
-        }
-
-        // Verify page should be accessible regardless of auth state
-        if (pathname.startsWith('/verify')) {
+            pathname.startsWith('/reset-password') ||
+            pathname.startsWith('/verify')) {
           return true;
         }
         
