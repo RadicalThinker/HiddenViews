@@ -16,7 +16,8 @@ import {
   Sun,
   Moon,
   Monitor,
-  User
+  User,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
@@ -90,6 +91,7 @@ export default function EventPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingEvent, setIsLoadingEvent] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [hasReviewed, setHasReviewed] = useState(false);
 
   const {
     complete,
@@ -155,6 +157,16 @@ export default function EventPage() {
   useEffect(() => {
     fetchEventData();
     initializeTheme();
+
+    // Check if user has already reviewed this event
+    try {
+      const reviewedEvents = JSON.parse(localStorage.getItem('hv_reviewed_events') || '[]');
+      if (reviewedEvents.includes(slug)) {
+        setHasReviewed(true);
+      }
+    } catch {
+      // Ignore parse errors
+    }
     
     // Listen for system theme changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -237,6 +249,19 @@ export default function EventPage() {
         ...data,
         eventSlug: slug,
       });
+
+      // Mark this event as reviewed in localStorage
+      try {
+        const reviewedEvents = JSON.parse(localStorage.getItem('hv_reviewed_events') || '[]');
+        if (!reviewedEvents.includes(slug)) {
+          reviewedEvents.push(slug);
+          localStorage.setItem('hv_reviewed_events', JSON.stringify(reviewedEvents));
+        }
+      } catch {
+        // Fallback: set it fresh
+        localStorage.setItem('hv_reviewed_events', JSON.stringify([slug]));
+      }
+      setHasReviewed(true);
 
       toast({
         title: 'Review Sent!',
@@ -462,11 +487,21 @@ export default function EventPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Star className="w-5 h-5 text-yellow-600" />
-              Leave an Anonymous Review
+              {hasReviewed ? 'Review Submitted' : 'Leave an Anonymous Review'}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {eventData.settings.isAcceptingReviews ? (
+            {hasReviewed ? (
+              <div className="text-center py-8">
+                <ShieldCheck className="w-14 h-14 mx-auto mb-4 text-green-500" />
+                <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
+                  Thank you for your review!
+                </h3>
+                <p className="text-secondary-600 dark:text-secondary-400 max-w-md mx-auto">
+                  You have already submitted a review for this event. Each person can only leave one review to keep feedback fair and unbiased.
+                </p>
+              </div>
+            ) : eventData.settings.isAcceptingReviews ? (
               <Form {...reviewForm}>
                 <form onSubmit={reviewForm.handleSubmit(onSubmitReview)} className="space-y-6">
                   <FormField
