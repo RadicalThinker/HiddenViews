@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { FiGithub, FiShield, FiEyeOff, FiMessageCircle, FiZap, FiUsers, FiStar, FiCheck,FiTarget  } from 'react-icons/fi';
-import Lenis from '@studio-freight/lenis';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -498,31 +497,7 @@ export default function Home() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Initialize Lenis smooth scrolling
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-      infinite: false,
-      autoResize: true,
-    });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
 
   return (
     <div className={`min-h-screen w-full ${theme === 'dark' ? 'bg-[#080808]' : 'bg-gray-50'}`}>
