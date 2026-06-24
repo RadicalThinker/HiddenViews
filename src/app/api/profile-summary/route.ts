@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     const bullets = trimmed.map((r, i) => `${i + 1}. ${r}`).join("\n");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const prompt = `You are an expert reviewer summarizer for an events feedback platform.
 Summarize the following user reviews and provide:
