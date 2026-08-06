@@ -34,8 +34,11 @@ export async function GET(request: Request) {
 
     const { username } = result.data;
 
+    // Only a verified user "owns" a username — sign-up overwrites unverified
+    // collisions, so an unverified claim should not block a real sign-up.
     const existingVerifiedUser = await UserModel.findOne({
       username,
+      isVerified: true,
     });
 
     if (existingVerifiedUser) {
@@ -44,7 +47,7 @@ export async function GET(request: Request) {
           success: false,
           message: 'Username is already taken',
         },
-        { status: 200 }
+        { status: 409 }
       );
     }
 

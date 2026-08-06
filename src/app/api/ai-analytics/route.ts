@@ -1,28 +1,22 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import EventModel from '@/model/Event';
-import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+import { resolveAuthUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
-
-  if (!session || !_user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return NextResponse.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
 
-  const userId = _user._id;
+  const userId = authUser._id;
 
   try {
     const user = await UserModel.findById(userId).populate('events');
@@ -97,6 +91,13 @@ export async function GET(request: NextRequest) {
     Keep responses concise and actionable. Focus on genuine insights from the data.
     `;
 
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        { success: false, message: 'AI not configured on the server' },
+        { status: 503 }
+      );
+    }
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;

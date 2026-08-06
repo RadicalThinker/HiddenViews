@@ -1,11 +1,10 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import EventModel from '@/model/Event';
-import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { queryReplySchema } from '@/schemas/querySchema';
 import { Resend } from 'resend';
+import { resolveAuthUser } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(
   request: NextRequest,
@@ -13,10 +12,8 @@ export async function POST(
 ) {
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
-
-  if (!session || !_user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return NextResponse.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
@@ -40,7 +37,7 @@ export async function POST(
       );
     }
 
-    const userId = _user._id;
+    const userId = authUser._id;
     
     // Find the event that contains this query and is owned by the user
     const event = await EventModel.findOne({
@@ -119,7 +116,7 @@ export async function POST(
           `,
         });
       } catch (emailError) {
-        console.error('Error sending email notification:', emailError);
+        logger.error('Error sending query reply email notification', emailError);
         // Don't fail the request if email fails
       }
     }
@@ -129,7 +126,7 @@ export async function POST(
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error replying to query:', error);
+    logger.error('Error replying to query', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

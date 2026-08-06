@@ -1,13 +1,18 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// Initialize the API client
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
-
 export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        { error: "AI not configured on the server" },
+        { status: 503 }
+      );
+    }
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
     const body = await req.json().catch(() => ({}));
     const { reviews = [], userName, totalReviews, averageRating } = body as {
       reviews: string[];
@@ -23,7 +28,7 @@ export async function POST(req: Request) {
 
     const bullets = trimmed.map((r, i) => `${i + 1}. ${r}`).join("\n");
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `You are an expert reviewer summarizer for an events feedback platform.
 Summarize the following user reviews and provide:

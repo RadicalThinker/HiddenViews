@@ -1,4 +1,4 @@
-import UserModel, { Message } from '@/model/User';
+import UserModel from '@/model/User';
 import dbConnect from '@/lib/dbConnect';
 import { logger } from '@/lib/logger';
 
@@ -24,9 +24,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // For now, we'll just return success without storing messages
-    // since messages field doesn't exist in the User model
-    // This API might need to be redesigned to use a separate Message collection
+    await UserModel.updateOne(
+      { _id: user._id },
+      { $push: { messages: { content, createdAt: new Date() } } }
+    );
 
     return Response.json(
       { message: 'Message sent successfully', success: true },

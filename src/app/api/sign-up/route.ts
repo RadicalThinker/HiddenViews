@@ -1,7 +1,10 @@
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { sendVerificationEmail } from '@/helpers/sendVerificationEmail';
+
+const generateVerifyCode = (): string => crypto.randomInt(100000, 1000000).toString();
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -53,7 +56,7 @@ export async function POST(request: Request) {
       } else {
         // User exists but not verified, update their details
         const hashedPassword = await bcrypt.hash(password, 10);
-        const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const verifyCode = generateVerifyCode();
         const expiryDate = new Date();
         expiryDate.setHours(expiryDate.getHours() + 1);
 
@@ -61,6 +64,7 @@ export async function POST(request: Request) {
         existingUserByUsername.password = hashedPassword;
         existingUserByUsername.verifyCode = verifyCode;
         existingUserByUsername.verifyCodeExpiry = expiryDate;
+        existingUserByUsername.verifyAttempts = 0;
 
         await existingUserByUsername.save();
 
@@ -106,7 +110,7 @@ export async function POST(request: Request) {
     if (existingUnverifiedUserByEmail) {
       // Update existing unverified user
       const hashedPassword = await bcrypt.hash(password, 10);
-      const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const verifyCode = generateVerifyCode();
       const expiryDate = new Date();
       expiryDate.setHours(expiryDate.getHours() + 1);
 
@@ -114,6 +118,7 @@ export async function POST(request: Request) {
       existingUnverifiedUserByEmail.password = hashedPassword;
       existingUnverifiedUserByEmail.verifyCode = verifyCode;
       existingUnverifiedUserByEmail.verifyCodeExpiry = expiryDate;
+      existingUnverifiedUserByEmail.verifyAttempts = 0;
 
       await existingUnverifiedUserByEmail.save();
 
@@ -151,10 +156,10 @@ export async function POST(request: Request) {
 
     // Create new user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCode = generateVerifyCode();
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 1);
-    
+
     const newUser = new UserModel({
       username,
       email,

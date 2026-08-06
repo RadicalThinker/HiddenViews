@@ -82,6 +82,7 @@ export interface User extends Document {
   isVerified: boolean;
   verifyCode: string;
   verifyCodeExpiry: Date;
+  verifyAttempts: number;
   resetPasswordToken?: string;
   resetPasswordExpiry?: Date;
   isAcceptingMessages: boolean;
@@ -126,6 +127,10 @@ const UserSchema: Schema<User> = new mongoose.Schema({
   verifyCodeExpiry: {
     type: Date,
     required: [true, 'Verify code expiry is required'],
+  },
+  verifyAttempts: {
+    type: Number,
+    default: 0,
   },
   resetPasswordToken: {
     type: String,

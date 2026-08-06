@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import * as z from 'zod';
 import {
   Form,
@@ -21,7 +21,17 @@ import { resetPasswordSchema } from '@/schemas/passwordResetSchema';
 import axios, { AxiosError } from 'axios';
 import { ApiResponse } from '@/types/ApiResponse';
 
-export default function ResetPasswordForm() {
+export default function ResetPasswordPage() {
+  // useSearchParams() must be wrapped in a <Suspense> boundary in Next 14,
+  // otherwise `next build` fails to statically prerender this route.
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}
+
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);

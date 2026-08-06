@@ -16,16 +16,20 @@ async function dbConnect(): Promise<void> {
 
   try {
     // Attempt to connect to the database
-    const db = await mongoose.connect(process.env.MONGODB_URI || '', {});
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is not defined in environment variables');
+    }
+    const db = await mongoose.connect(process.env.MONGODB_URI, {});
 
     connection.isConnected = db.connections[0].readyState;
 
     logger.info('Database connected successfully');
   } catch (error) {
+    // Throw instead of process.exit(1) so build-time page-data collection
+    // (which has no DB) doesn't crash the whole build worker — the route
+    // simply fails to prerun, which is fine for dynamic API routes.
     logger.critical('Database connection failed', error);
-
-    // Graceful exit in case of a connection error
-    process.exit(1);
+    throw error;
   }
 }
 

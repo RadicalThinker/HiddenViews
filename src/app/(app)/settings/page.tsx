@@ -37,8 +37,9 @@ function SettingsPage() {
     try {
       const res = await axios.get(`/api/check-username-unique?username=${encodeURIComponent(username)}`)
       setIsAvailable(Boolean(res.data?.success))
-    } catch (e) {
-      setIsAvailable(null)
+    } catch (e: any) {
+      // 409 = taken (we set this in stone on the backend); other non-2xx treated as a check error.
+      setIsAvailable(e?.response?.status === 409 ? false : null)
     } finally {
       setIsChecking(false)
     }

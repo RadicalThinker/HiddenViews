@@ -26,11 +26,17 @@ export async function GET(request: Request) {
       { $group: { _id: '$_id', messages: { $push: '$messages' } } },
     ]).exec();
 
+    // $unwind produces zero docs when messages is an empty array, so we
+    // distinguish "no messages" (200, [] ) from "user truly gone" (404).
     if (!user || user.length === 0) {
-      return Response.json(
-        { message: 'User not found', success: false },
-        { status: 404 }
-      );
+      const exists = await UserModel.exists({ _id: userId });
+      if (!exists) {
+        return Response.json(
+          { message: 'User not found', success: false },
+          { status: 404 }
+        );
+      }
+      return Response.json({ messages: [] }, { status: 200 });
     }
 
     return Response.json(

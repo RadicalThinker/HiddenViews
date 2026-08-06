@@ -1,24 +1,25 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import EventModel from '@/model/Event';
 import UserModel from '@/model/User';
 import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { resolveAuthUser } from '@/lib/auth';
+
+const INVALID_EVENT_TYPES = ['Workshop', 'Course', 'Webinar', 'Meeting', 'Project', 'Other'];
 
 // Create a new event
 export async function POST(request: NextRequest) {
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
-
-  if (!session || !_user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return NextResponse.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
+  const _user = { _id: authUser._id } as User;
 
   try {
     const { title, description, eventType, customMessage } = await request.json();
@@ -27,6 +28,13 @@ export async function POST(request: NextRequest) {
     if (!title || !eventType) {
       return NextResponse.json(
         { success: false, message: 'Title and event type are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!INVALID_EVENT_TYPES.includes(eventType)) {
+      return NextResponse.json(
+        { success: false, message: `eventType must be one of: ${INVALID_EVENT_TYPES.join(', ')}` },
         { status: 400 }
       );
     }
@@ -61,7 +69,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await newEvent.save();
+    try {
+      await newEvent.save();
+    } catch (saveErr: any) {
+      // Mongo E11000 duplicate key on slug — TOCTOU race between the
+      // find-loop above and save(). Surface as 409 so the client can retry.
+      if (saveErr?.code === 11000 && saveErr?.keyPattern?.slug) {
+        return NextResponse.json(
+          { success: false, message: 'Event slug conflict, please retry with a different title.' },
+          { status: 409 }
+        );
+      }
+      throw saveErr;
+    }
 
     // Add event reference to user
     await UserModel.findByIdAndUpdate(
@@ -87,7 +107,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error creating event:', error);
+    logger.error('Error creating event', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }
@@ -99,15 +119,14 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
-
-  if (!session || !_user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return NextResponse.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
+  const _user = { _id: authUser._id } as User;
 
   try {
     const events = await EventModel.find({ createdBy: _user._id })

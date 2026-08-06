@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import EventModel from '@/model/Event';
+import UserModel from '@/model/User';
+import { logger } from '@/lib/logger';
+import { resolveAuthUser } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
@@ -56,8 +57,8 @@ export async function PATCH(
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const authUser = await resolveAuthUser(request);
+    if (!authUser) {
       return NextResponse.json(
         { success: false, message: 'You must be logged in to update event settings' },
         { status: 401 }
@@ -65,7 +66,7 @@ export async function PATCH(
     }
 
     const { slug } = params;
-    const { settings } = await request.json();
+    const { settings } = await request.json().catch(() => ({ settings: null }));
 
     // Validate settings structure
     if (!settings || typeof settings !== 'object') {
@@ -77,7 +78,7 @@ export async function PATCH(
 
     // Find the event and verify ownership
     const event = await EventModel.findOne({ slug, isActive: true });
-    
+
     if (!event) {
       return NextResponse.json(
         { success: false, message: 'Event not found' },
@@ -86,7 +87,7 @@ export async function PATCH(
     }
 
     // Check if the user is the creator of the event
-    if (event.createdBy.toString() !== session.user._id) {
+    if (event.createdBy.toString() !== authUser._id) {
       return NextResponse.json(
         { success: false, message: 'You are not authorized to update this event' },
         { status: 403 }
@@ -152,8 +153,8 @@ export async function DELETE(
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    const authUser = await resolveAuthUser(request);
+    if (!authUser) {
       return NextResponse.json(
         { success: false, message: 'You must be logged in to delete an event' },
         { status: 401 }
@@ -164,7 +165,7 @@ export async function DELETE(
 
     // Find the event and verify ownership
     const event = await EventModel.findOne({ slug, isActive: true });
-    
+
     if (!event) {
       return NextResponse.json(
         { success: false, message: 'Event not found' },
@@ -173,7 +174,7 @@ export async function DELETE(
     }
 
     // Check if the user is the creator of the event
-    if (event.createdBy.toString() !== session.user._id) {
+    if (event.createdBy.toString() !== authUser._id) {
       return NextResponse.json(
         { success: false, message: 'You are not authorized to delete this event' },
         { status: 403 }
@@ -182,6 +183,30 @@ export async function DELETE(
 
     // Permanently delete the event from database
     await EventModel.findOneAndDelete({ slug });
+
+    // Keep the user side in sync: pull the dangling ref and recompute
+    // profileStats from the surviving events (otherwise totalEvents is
+    // over-counted forever, and the events array points at a dead id).
+    await UserModel.findByIdAndUpdate(
+      authUser._id,
+      { $pull: { events: event._id } }
+    );
+
+    const userEvents = await EventModel.find({ createdBy: authUser._id });
+    let totalReviews = 0;
+    let totalRating = 0;
+    let totalQueries = 0;
+    userEvents.forEach((evt) => {
+      totalReviews += evt.reviews.length;
+      totalRating += evt.reviews.reduce((sum, r) => sum + r.rating, 0);
+      totalQueries += evt.queries.length;
+    });
+    await UserModel.findByIdAndUpdate(authUser._id, {
+      'profileStats.totalEvents': userEvents.length,
+      'profileStats.totalReviews': totalReviews,
+      'profileStats.totalQueries': totalQueries,
+      'profileStats.averageRating': totalReviews ? Math.round((totalRating / totalReviews) * 10) / 10 : 0,
+    });
 
     return NextResponse.json(
       {
@@ -192,7 +217,7 @@ export async function DELETE(
     );
 
   } catch (error) {
-    console.error('Error deleting event:', error);
+    logger.error('Error deleting event', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

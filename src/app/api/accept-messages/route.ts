@@ -19,7 +19,15 @@ export async function POST(request: Request) {
   }
 
   const userId = user._id;
-  const { acceptMessages } = await request.json();
+  const body = await request.json().catch(() => ({}));
+  const { acceptMessages } = body as { acceptMessages?: unknown };
+
+  if (typeof acceptMessages !== 'boolean') {
+    return Response.json(
+      { success: false, message: 'acceptMessages must be a boolean' },
+      { status: 400 }
+    );
+  }
 
   try {
     // Update the user's message acceptance status
@@ -40,12 +48,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Successfully updated message acceptance status
+    // Successfully updated message acceptance status.
+    // Only echo the relevant flag — never the full user document (it contains the password hash).
     return Response.json(
       {
         success: true,
         message: 'Message acceptance status updated successfully',
-        updatedUser,
+        isAcceptingMessages: updatedUser.isAcceptingMessages,
       },
       { status: 200 }
     );

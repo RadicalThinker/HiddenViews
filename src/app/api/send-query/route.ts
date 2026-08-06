@@ -39,6 +39,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Enforce the event-level requireEmail setting server-side — clients
+    // (web + mobile) validate on their own, but anonymous submissions must
+    // not rely on that.
+    if (event.settings.requireEmail && !senderEmail?.trim()) {
+      return NextResponse.json(
+        { success: false, message: 'An email address is required for queries on this event' },
+        { status: 400 }
+      );
+    }
+
     // Create new query
     const newQuery = {
       content,

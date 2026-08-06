@@ -1,9 +1,8 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import EventModel from '@/model/Event';
-import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveAuthUser } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 export async function GET(
   request: NextRequest,
@@ -11,10 +10,8 @@ export async function GET(
 ) {
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
-
-  if (!session || !_user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return NextResponse.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
@@ -27,7 +24,7 @@ export async function GET(
     // Find the event and verify ownership
     const event = await EventModel.findOne({ 
       slug, 
-      createdBy: _user._id
+      createdBy: authUser._id
     }).select('title description eventType slug isActive createdAt reviews queries stats settings');
 
     if (!event) {
@@ -37,12 +34,14 @@ export async function GET(
       );
     }
 
-    // Sort reviews and queries by creation date (newest first)
-    const sortedReviews = event.reviews.sort((a: any, b: any) => 
+    // Sort reviews and queries by creation date (newest first) on plain
+    // copies — sorting the Mongoose subdoc arrays in place mutates the
+    // document and confuses later save() calls.
+    const sortedReviews = [...event.reviews].sort((a: any, b: any) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    const sortedQueries = event.queries.sort((a: any, b: any) => 
+    const sortedQueries = [...event.queries].sort((a: any, b: any) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
@@ -66,7 +65,7 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching event reviews and queries:', error);
+    logger.error('Error fetching event reviews and queries', error);
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 }

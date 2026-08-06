@@ -39,14 +39,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user is verified
+    // Check if user is verified. Unverified accounts silently behave like
+    // a missing account so the public endpoint can't be used to enumerate
+    // which emails exist and which are/aren't verified.
     if (!user.isVerified) {
       return Response.json(
         {
-          success: false,
-          message: 'Please verify your email first before resetting password.',
+          success: true,
+          message: 'If an account with that email exists, you will receive a password reset link.',
         },
-        { status: 400 }
+        { status: 200 }
       );
     }
 

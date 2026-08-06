@@ -1,6 +1,9 @@
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import crypto from 'crypto';
 import { sendVerificationEmail } from '@/helpers/sendVerificationEmail';
+
+const generateVerifyCode = (): string => crypto.randomInt(100000, 1000000).toString();
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -38,13 +41,14 @@ export async function POST(request: Request) {
     }
 
     // Generate new verification code
-    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCode = generateVerifyCode();
     const expiryDate = new Date();
     expiryDate.setHours(expiryDate.getHours() + 1);
 
     // Update user with new verification code
     user.verifyCode = verifyCode;
     user.verifyCodeExpiry = expiryDate;
+    user.verifyAttempts = 0;
     await user.save();
 
     // Send verification email

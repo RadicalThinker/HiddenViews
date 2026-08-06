@@ -11,7 +11,8 @@ declare module 'next-auth' {
         totalEvents?: number;
         totalReviews?: number;
         totalQueries?: number;
-        resolvedQueries?: number;
+        // NOTE: resolvedQueries is intentionally absent here — it is not
+        // maintained anywhere on the User document. Use Event.stats.resolvedQueries.
         averageRating?: number;
       };
     } & DefaultSession['user'];
@@ -26,7 +27,6 @@ declare module 'next-auth' {
       totalEvents?: number;
       totalReviews?: number;
       totalQueries?: number;
-      resolvedQueries?: number;
       averageRating?: number;
     };
   }
@@ -42,7 +42,6 @@ declare module 'next-auth/jwt' {
       totalEvents?: number;
       totalReviews?: number;
       totalQueries?: number;
-      resolvedQueries?: number;
       averageRating?: number;
     };
   }
