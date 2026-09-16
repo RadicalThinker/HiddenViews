@@ -279,10 +279,3 @@ Contributions, issues, and feature requests are welcome!
 
 ---
 
-<div align="center">
-
-Built with ❤️ for authentic, anonymous feedback.
-
-[Live Application](https://hiddenreviews.yashcore.app/) • [Report Bug](https://github.com/RadicalThinker/HiddenViews/issues) • [Request Feature](https://github.com/RadicalThinker/HiddenViews/issues)
-
-</div>
