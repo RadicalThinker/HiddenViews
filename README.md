@@ -1,520 +1,294 @@
 # 🔮 HiddenViews
 
-**Get Honest, Anonymous Feedback That Actually Matters**
+**Get Honest, Anonymous Feedback & Interactive Q&A That Actually Matters**
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green)](https://www.mongodb.com/atlas)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4)](https://tailwindcss.com/)
-[![AI Powered](https://img.shields.io/badge/AI-Powered-purple)](https://ai.google.dev/)
-[![Production Ready](https://img.shields.io/badge/Production-Ready-success)](https://hiddenreviews.yashcore.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.0_Flash-8E75B2?logo=google&logoColor=white)](https://ai.google.dev/)
+[![Resend](https://img.shields.io/badge/Resend-Email_API-black?logo=resend)](https://resend.com/)
+[![NextAuth.js](https://img.shields.io/badge/NextAuth.js-v4-purple)](https://next-auth.js.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 🚀 **Live Demo:** [hiddenreviews.yashcore.app](https://hiddenreviews.yashcore.app/)
-
----
-
-## 🌟 What is HiddenViews?
-
-HiddenViews is a **modern, AI-powered feedback platform** that enables completely anonymous reviews and Q&A sessions. Whether you're running workshops, courses, meetings, or projects, get the honest feedback you need to grow and improve.
-
-### ✨ The Problem We Solve
-
-- **Fear of Judgment**: People hesitate to give honest feedback
-- **Bias & Politics**: Identity affects how feedback is received
-- **Lost Insights**: Valuable feedback never gets shared
-- **Poor Engagement**: Traditional feedback forms are boring
-
-### 🎯 Our Solution
-
-**Complete anonymity + AI insights = Better decisions**
+> 🚀 **Live Production Application:** [https://hiddenreviews.yashcore.app/](https://hiddenreviews.yashcore.app/)
 
 ---
 
-## 🚀 Key Features
+## 🌟 Overview
 
-### 🔒 **Privacy & Anonymity**
-- **Zero Identity Tracking**: No logs, no traces, complete anonymity
-- **Secure by Design**: Privacy-first architecture
-- **GDPR Compliant**: Respects user data rights
+**HiddenViews** is an AI-powered feedback and interactive Q&A platform engineered for modern educators, workshop organizers, team leads, and event managers. It eliminates the fear of judgment by providing attendees with a truly anonymous, friction-free way to share candid reviews and ask critical questions — while giving organizers deep, synthesized AI insights to take immediate action.
 
-### 🎨 **Modern User Experience**
-- **Beautiful Dark/Light UI**: Seamless theme switching
-- **Mobile-First Design**: Works perfectly on all devices
-- **PWA Support**: Install as a native app
-- **Real-time Updates**: Live feedback without refreshing
+### 💡 The Problem
+- **Feedback Hesitation:** Participants rarely express authentic thoughts when their names or emails are tied to their feedback.
+- **Lost Actionability:** Manually sifting through unstructured responses to extract common themes or sentiment shifts is slow and error-prone.
+- **Disjointed Q&A:** Questions asked during meetings and events are often lost in chat feeds without dedicated follow-up or visibility.
 
-### 🤖 **AI-Powered Analytics**
-- **Smart Insights**: Google Gemini AI analyzes feedback patterns
-- **Sentiment Analysis**: Understand the overall mood
-- **Key Themes Detection**: Identify common topics
-- **Actionable Recommendations**: Get specific improvement suggestions
+### 🎯 The Solution
+- **Complete Privacy for Attendees:** No account creation, no cookies for tracking, and zero IP logging.
+- **Gemini-Powered Analytics:** Automated sentiment scoring, key theme extraction, strength/weakness detection, and actionable suggestions.
+- **Organized Public Q&A:** A dedicated query submission workflow where organizers can answer questions publicly and optionally notify askers via email.
 
-### 📊 **Comprehensive Dashboard**
-- **Event Management**: Create and manage multiple events
-- **Real-time Statistics**: Track ratings, reviews, and queries
-- **Advanced Filtering**: Search and sort feedback efficiently
-- **Export Capabilities**: Download reports for analysis
+---
 
-### 🔗 **Easy Integration**
-- **Simple Links**: Share event links anywhere
-- **Custom Messages**: Personalize feedback requests
-- **Email Notifications**: Get notified of new feedback
-- **API Access**: Integrate with existing systems
+## ✨ Key Features
+
+### 🔒 Privacy-First Participant Experience (`/e/[slug]`)
+- **Zero Registration Needed:** Attendees simply open the event link or scan a QR code.
+- **Star Ratings & Reviews:** 1 to 5 star rating system with detailed feedback input.
+- **AI Feedback Suggestions:** Attendees struggling with phrasing can click AI-generated suggestion chips generated on-the-fly with **Google Gemini 2.0 Flash Lite**.
+- **Anonymous Queries:** Attendees can submit categorized queries (`Technical`, `General`, `Feedback`, `Other`) with optional email notification upon organizer reply.
+- **Public Answered Q&A Feed:** Attendees can view organizer responses directly on the event page.
+
+### 📊 Organizer Suite & Event Management (`/dashboard`)
+- **Multi-Event Lifecycle:** Create and manage workshops, courses, webinars, team meetings, and custom projects.
+- **Granular Event Controls:**
+  - Toggle accepting new reviews on/off.
+  - Toggle accepting queries on/off.
+  - Require or make email optional for query response notifications.
+  - Custom welcome greeting and event descriptions.
+- **Query Resolution:** Directly draft replies, notify the sender via email (if email was provided), and toggle query resolution status.
+- **Direct Link Sharing:** One-click copy for public event URLs and easy distribution.
+
+### 🤖 AI Analytics Engine
+- **Model:** Powered by **Google Gemini 2.0 Flash** via `@google/generative-ai`.
+- **Sentiment Scoring:** Accurately gauges emotional tone across negative (-1.0) to positive (+1.0) spectrum.
+- **Thematic Clustering:** Detects recurring discussion points and recurring pain points.
+- **Executive Summary:** Generates concise 2–3 sentence digests of overall event reception.
+- **Action Items & Growth:** Recommends concrete, high-priority improvements based on real attendee input.
+- **Trend Detection:** Evaluates whether satisfaction is improving, stable, or declining over time.
+
+### 🎨 Modern, High-Performance UI/UX
+- **Dark & Light Mode:** Flawless theme transitions powered by `next-themes`.
+- **Micro-Interactions & Animation:** Built with Tailwind CSS, Framer Motion, GSAP, and Radix UI primitives.
+- **Interactive Canvas Elements:** DotGrid background and Embla carousel showcase on the landing page.
+- **PWA Ready:** Configured for mobile installation as a progressive web app.
+
+### 🛡️ Security & Account Management
+- **Secure Authentication:** NextAuth.js credential provider with bcrypt-hashed passwords and secure JWT sessions.
+- **Email Verification:** 6-digit OTP code verification sent upon registration via **Resend**.
+- **Password Recovery:** Secure token-based password reset workflow with time-limited links.
+- **Custom Production Logger:** In-memory and environment-aware logging (`src/lib/logger.ts`) that suppresses debug clutter in production.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### **Frontend**
-```bash
-🔹 Next.js 14 (App Router)
-🔹 TypeScript
-🔹 Tailwind CSS
-🔹 Framer Motion
-🔹 React Hook Form + Zod
-🔹 Radix UI Components
-🔹 PWA Support
-```
+| Layer | Technologies |
+| :--- | :--- |
+| **Framework** | [Next.js 14.0.4](https://nextjs.org/) (App Router, Server Components & Route Handlers) |
+| **Language** | [TypeScript 5](https://www.typescriptlang.org/) |
+| **Styling** | [Tailwind CSS 3.3](https://tailwindcss.com/), [Tailwind Animate](https://github.com/jamiebuilds/tailwindcss-animate), [Radix UI](https://www.radix-ui.com/) |
+| **Motion & Design** | [Framer Motion](https://www.framer.com/motion/), [GSAP](https://greensock.com/gsap/), [Lucide Icons](https://lucide.dev/), [React Icons](https://react-icons.github.io/react-icons/) |
+| **Forms & Validation** | [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) |
+| **Database** | [MongoDB Atlas](https://www.mongodb.com/atlas) with [Mongoose 8](https://mongoosejs.com/) |
+| **Authentication** | [NextAuth.js v4](https://next-auth.js.org/) (JWT strategy, CredentialsProvider, custom cookies) |
+| **AI Services** | [Google Generative AI](https://ai.google.dev/) (`gemini-2.0-flash` & `gemini-2.0-flash-lite`) |
+| **Email Service** | [Resend 2.0](https://resend.com/) + [@react-email](https://react.email/) components |
+| **Deployment** | [Vercel](https://vercel.com/) |
 
-### **Backend**
-```bash
-🔹 Next.js API Routes
-🔹 NextAuth.js (Authentication)
-🔹 MongoDB + Mongoose
-🔹 Resend (Email Service)
-🔹 Google Gemini AI
-🔹 bcryptjs (Security)
-```
+---
 
-### **DevOps & Deployment**
-```bash
-🔹 Vercel (Hosting)
-🔹 MongoDB Atlas (Database)
-🔹 Custom Domain Setup
-🔹 Environment Management
-🔹 Production Optimizations
+## 📁 Repository Structure
+
+```
+HiddenViews/
+├── emails/                         # React Email templates
+│   ├── VerificationEmail.tsx       # 6-digit OTP verification template
+│   ├── ResetPasswordEmail.tsx      # Password reset link template
+│   └── QueryReplyEmail.tsx         # Organizer reply notification template
+├── public/                         # Static assets, icons, and PWA manifest
+├── src/
+│   ├── app/                        # Next.js 14 App Router
+│   │   ├── (app)/                  # Authenticated application shell
+│   │   │   ├── dashboard/          # Organizer dashboard & event listings
+│   │   │   │   ├── create-event/   # Event creation wizard
+│   │   │   │   ├── events/[slug]/  # Per-event reviews, queries & analytics
+│   │   │   │   └── profile/        # Organizer statistics & profile
+│   │   │   └── settings/           # Account settings & credentials
+│   │   ├── (auth)/                 # Authentication routes
+│   │   │   ├── sign-in/            # User login
+│   │   │   ├── sign-up/            # Account registration
+│   │   │   ├── verify/[username]/  # OTP verification screen
+│   │   │   ├── forgot-password/    # Password reset request
+│   │   │   └── reset-password/     # Token verification & password update
+│   │   ├── api/                    # Next.js Route Handlers
+│   │   │   ├── ai-analytics/       # Gemini-powered review analysis
+│   │   │   ├── auth/[...nextauth]/ # NextAuth endpoints & options
+│   │   │   ├── contact/            # Landing page contact form handler
+│   │   │   ├── events/             # CRUD endpoints for events
+│   │   │   ├── send-review/        # Anonymous review submission
+│   │   │   ├── send-query/         # Anonymous query submission
+│   │   │   ├── reply-query/        # Organizer query response handler
+│   │   │   ├── suggest-messages/   # Gemini prompt suggestions
+│   │   │   └── ...                 # Auth, verification & setting APIs
+│   │   ├── e/[slug]/               # Public attendee feedback & Q&A page
+│   │   ├── globals.css             # Base styles & theme variables
+│   │   ├── layout.tsx              # Root HTML layout with providers
+│   │   └── page.tsx                # High-conversion landing page
+│   ├── components/                 # Shared React UI components
+│   │   ├── ui/                     # Primitives (button, card, dialog, toast, etc.)
+│   │   ├── AIAnalyticsDashboard.tsx# AI sentiment & theme visualization
+│   │   ├── MessageCard.tsx         # Feedback item component
+│   │   ├── Navbar.tsx              # Dynamic navigation bar
+│   │   ├── PublicQASection.tsx     # Resolved Q&A accordion list
+│   │   └── StarRating.tsx          # Interactive rating stars
+│   ├── context/                    # React Context (Auth & Theme providers)
+│   ├── helpers/                    # Helper functions (email senders)
+│   ├── lib/                        # Core utilities
+│   │   ├── auth.ts                 # Server session resolution helper
+│   │   ├── cors.ts                 # CORS headers configuration
+│   │   ├── dbConnect.ts            # Mongoose singleton connection
+│   │   ├── logger.ts               # Production-ready logging module
+│   │   ├── resend.ts               # Resend client proxy
+│   │   └── utils.ts                # Class name mergers and formatters
+│   ├── model/                      # Mongoose models (User, Event)
+│   ├── schemas/                    # Zod validation schemas
+│   └── types/                      # TypeScript definitions & API responses
+├── next.config.js                  # Next.js build optimizations & security headers
+├── tailwind.config.ts              # Tailwind CSS configuration & design tokens
+└── tsconfig.json                   # TypeScript configuration
 ```
 
 ---
 
-## 🎯 Use Cases
+## 📡 API Reference
 
-### 📚 **Education**
-- Course feedback and ratings
-- Workshop evaluations
-- Student Q&A sessions
-- Training assessments
+### 🌐 Public Endpoints (No Authentication Required)
 
-### 💼 **Business**
-- Team meeting feedback
-- Project retrospectives
-- Client satisfaction surveys
-- Employee engagement
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/events/[slug]` | Fetch public metadata and settings for an event |
+| `POST` | `/api/send-review` | Submit an anonymous review (`eventSlug`, `content`, `rating`) |
+| `POST` | `/api/send-query` | Submit an anonymous question (`eventSlug`, `content`, `category`, `senderEmail?`) |
+| `GET` | `/api/public-queries/[slug]` | Fetch all resolved public questions and organizer replies |
+| `POST` | `/api/suggest-messages` | Generate feedback suggestions using Gemini 2.0 Flash Lite |
+| `POST` | `/api/contact` | Submit message from landing page contact form |
+| `GET` | `/api/check-username-unique` | Real-time username availability check during registration |
+| `POST` | `/api/sign-up` | Create a new organizer account and trigger verification email |
+| `POST` | `/api/verify-code` | Validate 6-digit OTP code |
+| `POST` | `/api/resend-verification` | Request a new verification OTP |
+| `POST` | `/api/forgot-password` | Send password reset token email |
+| `POST` | `/api/reset-password` | Update password using valid reset token |
 
-### 🎪 **Events**
-- Conference speaker ratings
-- Webinar feedback
-- Community event reviews
-- Performance evaluations
+### 🔐 Protected Endpoints (Organizer Session Required)
 
-### 👥 **Personal**
-- Presentation feedback
-- Skill improvement tracking
-- Peer reviews
-- Social gatherings
-
----
-
-## 📱 Screenshots
-
-### 🏠 **Landing Page**
-![Landing Page](https://via.placeholder.com/800x400/080808/ffffff?text=Beautiful+Dark+Landing+Page)
-*Modern, animated landing page with smooth scrolling and interactive elements*
-
-### 📊 **Dashboard**
-![Dashboard](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Event+Management+Dashboard)
-*Comprehensive dashboard for managing events and viewing analytics*
-
-### 🤖 **AI Analytics**
-![AI Analytics](https://via.placeholder.com/800x400/2a2a2a/ffffff?text=AI+Powered+Insights)
-*Smart analytics with sentiment analysis and improvement suggestions*
-
-### 📝 **Public Feedback Page**
-![Feedback Form](https://via.placeholder.com/800x400/3a3a3a/ffffff?text=Anonymous+Feedback+Form)
-*Clean, user-friendly anonymous feedback interface*
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/events` | List all events created by the authenticated organizer |
+| `POST` | `/api/events` | Create a new event |
+| `PATCH` | `/api/events/[slug]` | Update event settings or toggle active state |
+| `GET` | `/api/ai-analytics` | Generate Gemini AI analytics across organizer reviews |
+| `POST` | `/api/reply-query/[queryId]`| Post an organizer reply to an attendee query and send email alert |
+| `POST` | `/api/toggle-query-resolved/[queryId]` | Mark query as resolved or unresolved |
+| `DELETE`| `/api/delete-query/[queryId]` | Delete a query |
+| `DELETE`| `/api/delete-review/[reviewId]` | Delete a review |
+| `POST` | `/api/update-username` | Update organizer username |
+| `POST` | `/api/update-password` | Change organizer password |
+| `POST` | `/api/update-settings` | Update user preferences (theme, accepting messages) |
+| `GET` | `/api/profile-summary` | Get aggregated stats (ratings, counts) for organizer profile |
 
 ---
 
-## 🚀 Quick Start
+## ⚡ Quick Start & Local Development
 
 ### Prerequisites
-
-```bash
-Node.js 18+ 
-MongoDB Account
-Resend Account (for emails)
-Google AI Studio Account (for AI features)
-```
+- **Node.js**: `v18.17.0` or later
+- **npm** or **yarn** / **pnpm**
+- **MongoDB Atlas** cluster or a local MongoDB instance
+- **Resend API Key** ([resend.com](https://resend.com))
+- **Google Gemini API Key** ([ai.google.dev](https://ai.google.dev/))
 
 ### 1. Clone the Repository
-
 ```bash
-git clone https://github.com/yourusername/hiddenviews.git
-cd hiddenviews
+git clone https://github.com/RadicalThinker/HiddenViews.git
+cd HiddenViews
 ```
 
 ### 2. Install Dependencies
-
 ```bash
 npm install
 ```
 
-### 3. Environment Setup
-
-Create `.env.local`:
+### 3. Configure Environment Variables
+Create a `.env.local` file in the project root:
 
 ```env
 # Database
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/hiddenviews
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/hiddenviews?retryWrites=true&w=majority
 
-# Authentication
-NEXTAUTH_SECRET=your-super-secret-key-here
+# NextAuth Configuration
 NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=generate_a_random_32_character_string_here
 
-# Email Service
-RESEND_API_KEY=re_your_resend_api_key
+# Email Delivery (Resend)
+RESEND_API_KEY=re_your_resend_api_key_here
 
-# AI Features
-GEMINI_API_KEY=your_google_gemini_api_key
+# AI Analytics & Suggestions (Google Gemini)
+GEMINI_API_KEY=AIzaSy_your_gemini_api_key_here
 
-# Environment
+# Node Environment
 NODE_ENV=development
 ```
 
-### 4. Run Development Server
+> **Tip:** You can generate a secure `NEXTAUTH_SECRET` by running:
+> ```bash
+> openssl rand -base64 32
+> ```
 
+### 4. Run the Development Server
 ```bash
 npm run dev
 ```
 
-🎉 **Open [http://localhost:3000](http://localhost:3000)** to see your app!
+Open [http://localhost:3000](http://localhost:3000) in your browser to test the application locally.
 
 ---
 
-## 📖 User Guide
+## 🚀 Production Deployment
 
-### 🎯 **For Event Organizers**
+### Recommended Platform: Vercel
 
-1. **Sign Up**: Create your account with email verification
-2. **Create Event**: Set up your workshop, course, or meeting
-3. **Configure Settings**: Choose what feedback to collect
-4. **Share Link**: Send the unique event link to participants
-5. **Monitor Dashboard**: Watch real-time feedback come in
-6. **Analyze Results**: Use AI insights to improve
+1. **Push your repository** to GitHub.
+2. **Import the project** into [Vercel](https://vercel.com).
+3. **Configure Environment Variables** in the Vercel project settings:
+   - `NEXTAUTH_URL`: Your production domain (e.g. `https://hiddenreviews.yashcore.app`)
+   - `NEXTAUTH_SECRET`: A high-entropy 32+ character secret
+   - `MONGODB_URI`: Production MongoDB Atlas connection string
+   - `RESEND_API_KEY`: Production Resend key
+   - `GEMINI_API_KEY`: Google Gemini API key
+   - `NODE_ENV`: `production`
+4. **Deploy**: Vercel will automatically build and deploy the Next.js App Router application.
 
-### 👥 **For Participants**
-
-1. **Click Link**: No sign-up required
-2. **Choose Feedback Type**: Reviews (ratings) or Questions
-3. **Stay Anonymous**: Your identity is never tracked
-4. **Submit Feedback**: Help improve future events
-5. **Check Answers**: Return to see responses to questions
-
----
-
-## 🔧 Configuration
-
-### **Event Types**
-- Workshop
-- Course  
-- Webinar
-- Meeting
-- Project
-- Other
-
-### **Feedback Settings**
-- ✅ Accept Reviews (star ratings + comments)
-- ✅ Accept Queries (questions with optional email notification)
-- ✅ Require Email (for query responses)
-- ✅ Custom Welcome Message
-
-### **AI Analytics Features**
-- Overall sentiment analysis
-- Key themes identification
-- Improvement suggestions
-- Rating distribution
-- Monthly trend analysis
-- Strengths and weaknesses
-
----
-
-## 🔒 Security & Privacy
-
-### **Privacy Guarantees**
-- ❌ **No IP Tracking**: We don't log visitor IPs
-- ❌ **No Cookies for Feedback**: Anonymous users need no tracking
-- ❌ **No Personal Data**: Feedback is truly anonymous
-- ✅ **Secure Authentication**: bcrypt + JWT tokens
-- ✅ **HTTPS Everywhere**: All traffic encrypted
-- ✅ **Database Security**: MongoDB Atlas security
-
-### **Data Protection**
-- Email verification for account security
-- Password hashing with bcrypt
-- Secure session management
-- Environment variable protection
-- Input validation and sanitization
-
----
-
-## 🌍 Production Deployment
-
-### **Vercel (Recommended)**
-
-1. **Connect Repository**: Link your GitHub repo to Vercel
-2. **Set Environment Variables**: Add all required env vars
-3. **Deploy**: Automatic deployment on every push
-4. **Custom Domain**: Configure your domain
-
-### **Environment Variables**
-
-```bash
-NEXTAUTH_URL=https://yourdomain.com
-NEXTAUTH_SECRET=production-secret-key
-MONGODB_URI=your-production-mongodb-uri
-RESEND_API_KEY=your-production-resend-key
-GEMINI_API_KEY=your-production-gemini-key
-NODE_ENV=production
-```
-
-### **Post-Deployment Checklist**
-
-- [ ] Test user registration and email verification
-- [ ] Verify event creation and sharing
-- [ ] Test anonymous feedback submission
-- [ ] Confirm AI analytics generation
-- [ ] Check email notifications
-- [ ] Test PWA installation
-- [ ] Validate mobile responsiveness
-- [ ] Monitor error logs
-
----
-
-## 🤖 AI Features Deep Dive
-
-### **Powered by Google Gemini 2.0**
-
-Our AI integration provides:
-
-```typescript
-interface AIAnalytics {
-  overallSentiment: 'positive' | 'neutral' | 'negative'
-  sentimentScore: number // -1 to 1
-  keyThemes: string[]
-  improvementSuggestions: string[]
-  summary: string
-  monthlyTrend: 'improving' | 'stable' | 'declining'
-  strongPoints: string[]
-  weakPoints: string[]
-  ratingDistribution: Record<string, number>
-}
-```
-
-### **Smart Features**
-- **Feedback Suggestions**: AI generates realistic feedback examples
-- **Sentiment Analysis**: Understand emotional tone of feedback
-- **Theme Detection**: Identify what people talk about most
-- **Improvement Tracking**: Monitor progress over time
-- **Personalized Reports**: Custom insights for each event
-
----
-
-## 📊 API Documentation
-
-### **Public Endpoints**
-
-```typescript
-// Get event details
-GET /api/events/[slug]
-
-// Submit anonymous review
-POST /api/send-review
-{
-  "eventSlug": "string",
-  "content": "string",
-  "rating": number
-}
-
-// Submit anonymous query
-POST /api/send-query
-{
-  "eventSlug": "string",
-  "content": "string",
-  "category": "string",
-  "senderEmail?: "string"
-}
-
-// Get public Q&A
-GET /api/public-queries/[slug]
-```
-
-### **Protected Endpoints**
-
-```typescript
-// Create event
-POST /api/events
-
-// Get user events
-GET /api/events
-
-// Get event analytics
-GET /api/ai-analytics
-
-// Update event settings
-PATCH /api/events/[slug]
-```
-
----
-
-## 🧪 Testing
-
-### **Development Testing**
-
-```bash
-# Run development server
-npm run dev
-
-# Test email functionality
-POST /api/test-email
-{
-  "to": "your-email@example.com",
-  "type": "verification"
-}
-
-# Check authentication
-GET /api/debug-auth
-```
-
-### **Production Testing**
-
-1. **User Registration Flow**
-2. **Email Verification Process**
-3. **Event Creation and Management**
-4. **Anonymous Feedback Submission**
-5. **AI Analytics Generation**
-6. **Email Notifications**
-7. **PWA Installation**
-
----
-
-## 🎨 Customization
-
-### **Theming**
-
-```css
-/* Custom colors in tailwind.config.ts */
-colors: {
-  customPrimary: {
-    100: '#f0f0f0',
-    200: '#d1d1d1', 
-    300: '#5227FF'
-  },
-  bg: {
-    100: '#080808',
-    200: '#1a1a1a',
-    300: '#2a2a2a'
-  }
-}
-```
-
-### **Email Templates**
-
-Custom React Email templates in `/emails/`:
-- Verification emails
-- Query reply notifications
-- Contact form responses
+### Important Production Notes:
+- **HTTPS Enforcement:** NextAuth requires `NEXTAUTH_URL` to start with `https://` in production.
+- **Domain Cookies:** Production cookie configuration uses `secure: true` and `sameSite: 'lax'` for secure cross-subdomain compatibility.
+- **Optimized Logging:** Production runs with `src/lib/logger.ts`, ensuring debug statements do not leak sensitive payloads in production logs.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
+Contributions, issues, and feature requests are welcome!
 
-### **Development Setup**
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Install dependencies: `npm install`
-4. Start development server: `npm run dev`
-5. Make your changes
-6. Run tests: `npm run build`
-7. Commit changes: `git commit -m 'Add amazing feature'`
-8. Push to branch: `git push origin feature/amazing-feature`
-9. Open a Pull Request
-
-### **Code Standards**
-
-- ✅ TypeScript for type safety
-- ✅ ESLint for code quality
-- ✅ Prettier for formatting
-- ✅ Beginner-friendly comments
-- ✅ Responsive design
-- ✅ Accessibility compliance
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-## 📝 License
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Next.js Team** for the amazing framework
-- **Vercel** for seamless deployment
-- **Google AI** for powerful language models
-- **Resend** for reliable email delivery
-- **MongoDB** for flexible data storage
-- **Open Source Community** for incredible tools
-
----
-
-## 💫 What's Next?
-
-### **Upcoming Features**
-
-- 📱 **Mobile App**: Native iOS and Android apps
-- 🔗 **Integrations**: Slack, Discord, Teams
-- 📊 **Advanced Analytics**: Custom dashboards
-- 🌍 **Multi-language**: International support
-- 🎯 **Templates**: Pre-built feedback forms
-- 🔔 **Real-time**: Live feedback notifications
-
----
-
-## 📞 Support & Contact
-
-### **Get Help**
-- 📧 **Email**: voicesecret9@gmail.com
-- 🐙 **GitHub**: [@radicalthinker](https://github.com/radicalthinker)
-- 🌐 **Website**: [hiddenreviews.yashcore.app](https://hiddenreviews.yashcore.app/)
-
-### **Report Issues**
-Found a bug? Have a feature request? Open an issue on GitHub!
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
 <div align="center">
 
-### 🌟 **Star this repo if you found it helpful!** 🌟
+Built with ❤️ for authentic, anonymous feedback.
 
-**Built with ❤️ for better feedback experiences**
-
-[⭐ Star on GitHub](https://github.com/yourusername/hiddenviews) | [🚀 Live Demo](https://hiddenreviews.yashcore.app/) | [📖 Documentation](https://github.com/yourusername/hiddenviews/wiki)
-
----
-
-*"The best feedback is honest feedback. The best honest feedback is anonymous feedback."*
+[Live Application](https://hiddenreviews.yashcore.app/) • [Report Bug](https://github.com/RadicalThinker/HiddenViews/issues) • [Request Feature](https://github.com/RadicalThinker/HiddenViews/issues)
 
 </div>

@@ -1,1 +1,0 @@
-I created This New Repo because the Old Repo exposed the .env environment variables and api key in the git commit history and then instead of manually removing it i created a new repo for time saving
