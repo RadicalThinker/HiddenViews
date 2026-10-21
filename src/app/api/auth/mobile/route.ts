@@ -5,6 +5,8 @@ import UserModel from '@/model/User';
 import { signMobileToken, verifyMobileToken } from '@/lib/mobileAuth';
 import { logger } from '@/lib/logger';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   await dbConnect();
 
@@ -34,9 +36,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const newToken = signMobileToken({
+      sub: String(user._id),
+      username: user.username,
+      email: user.email,
+      isVerified: user.isVerified,
+      isAcceptingMessages: user.isAcceptingMessages,
+    });
+
     return NextResponse.json(
       {
         success: true,
+        token: newToken,
         user: {
           _id: String(user._id),
           username: user.username,

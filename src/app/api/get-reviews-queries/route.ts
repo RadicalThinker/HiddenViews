@@ -1,25 +1,24 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import EventModel from '@/model/Event';
-import { User } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveAuthUser } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
+  const authUser = await resolveAuthUser(request);
 
-  if (!session || !_user) {
+  if (!authUser) {
     return NextResponse.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
 
-  const userId = _user._id;
+  const userId = authUser._id;
 
   try {
     const user = await UserModel.findById(userId);

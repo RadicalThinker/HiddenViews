@@ -1,9 +1,6 @@
 import UserModel from '@/model/User';
-import { getServerSession } from 'next-auth/next';
 import dbConnect from '@/lib/dbConnect';
-import { User } from 'next-auth';
-import { NextRequest } from 'next/server';
-import { authOptions } from '../../auth/[...nextauth]/options';
+import { resolveAuthUser } from '@/lib/auth';
 
 export async function DELETE(
   request: Request,
@@ -11,9 +8,8 @@ export async function DELETE(
 ) {
   const messageId = params.messageid;
   await dbConnect();
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
-  if (!session || !_user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return Response.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
@@ -22,7 +18,7 @@ export async function DELETE(
 
   try {
     const updateResult = await UserModel.updateOne(
-      { _id: _user._id },
+      { _id: authUser._id },
       { $pull: { messages: { _id: messageId } } }
     );
 

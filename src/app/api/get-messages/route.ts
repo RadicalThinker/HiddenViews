@@ -1,23 +1,22 @@
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import mongoose from 'mongoose';
-import { User } from 'next-auth';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/options';
 import { logger } from '@/lib/logger';
+import { resolveAuthUser } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   await dbConnect();
-  const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
+  const authUser = await resolveAuthUser(request);
 
-  if (!session || !_user) {
+  if (!authUser) {
     return Response.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
-  const userId = new mongoose.Types.ObjectId(_user._id);
+  const userId = new mongoose.Types.ObjectId(authUser._id);
   try {
     const user = await UserModel.aggregate([
       { $match: { _id: userId } },
@@ -46,7 +45,7 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    logger.error('Error fetching messages', error, { userId: _user._id });
+    logger.error('Error fetching messages', error, { userId: authUser._id });
     return Response.json(
       { message: 'Internal server error', success: false },
       { status: 500 }

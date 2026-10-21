@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '../context/AuthProvider';
@@ -9,12 +9,12 @@ import PWAInstaller from '@/components/PWAInstaller';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   title: 'HiddenViews - Anonymous Reviews & Queries',
   description: 'Get honest feedback and answer questions anonymously. Build trust through transparency.',
   keywords: ['anonymous feedback', 'reviews', 'queries', 'honest opinions', 'feedback platform'],
   authors: [{ name: 'HiddenViews Team' }],
   manifest: '/manifest.json',
-  themeColor: '#080808',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -27,7 +27,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = {
+export const viewport: Viewport = {
+  themeColor: '#080808',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

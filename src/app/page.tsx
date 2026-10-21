@@ -17,6 +17,9 @@ const useIntersectionObserver = (options = {}) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsIntersecting(entry.isIntersecting);
@@ -24,15 +27,12 @@ const useIntersectionObserver = (options = {}) => {
       { threshold: 0.1, ...options }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
+    observer.observe(node);
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
+      observer.unobserve(node);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return [ref, isIntersecting] as const;

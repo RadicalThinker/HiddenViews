@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../auth/[...nextauth]/options'
 import dbConnect from '@/lib/dbConnect'
 import UserModel from '@/model/User'
-import { User } from 'next-auth'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
+import { resolveAuthUser } from '@/lib/auth'
 
 const BodySchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
@@ -15,10 +13,9 @@ const BodySchema = z.object({
 export async function PATCH(request: NextRequest) {
   await dbConnect()
 
-  const session = await getServerSession(authOptions)
-  const _user: User = session?.user as any
+  const authUser = await resolveAuthUser(request)
 
-  if (!session || !_user?._id) {
+  if (!authUser) {
     return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 })
   }
 
@@ -32,7 +29,7 @@ export async function PATCH(request: NextRequest) {
 
     const { currentPassword, newPassword } = parsed.data
 
-    const user = await UserModel.findById(_user._id)
+    const user = await UserModel.findById(authUser._id)
     if (!user) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 })
     }

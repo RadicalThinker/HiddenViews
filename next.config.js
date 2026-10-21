@@ -115,7 +115,7 @@ const nextConfig = {
   
   // Environment variable validation
   env: {
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
   },
 }
 

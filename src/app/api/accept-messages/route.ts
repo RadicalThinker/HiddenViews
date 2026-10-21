@@ -1,24 +1,23 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
-import { User } from 'next-auth';
 import { logger } from '@/lib/logger';
+import { resolveAuthUser } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   // Connect to the database
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
-  const user: User = session?.user;
-  if (!session || !session.user) {
+  const authUser = await resolveAuthUser(request);
+  if (!authUser) {
     return Response.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
     );
   }
 
-  const userId = user._id;
+  const userId = authUser._id;
   const body = await request.json().catch(() => ({}));
   const { acceptMessages } = body as { acceptMessages?: unknown };
 
@@ -72,12 +71,10 @@ export async function GET(request: Request) {
   // Connect to the database
   await dbConnect();
 
-  // Get the user session
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
+  const authUser = await resolveAuthUser(request);
 
   // Check if the user is authenticated
-  if (!session || !user) {
+  if (!authUser) {
     return Response.json(
       { success: false, message: 'Not authenticated' },
       { status: 401 }
@@ -86,7 +83,7 @@ export async function GET(request: Request) {
 
   try {
     // Retrieve the user from the database using the ID
-    const foundUser = await UserModel.findById(user._id);
+    const foundUser = await UserModel.findById(authUser._id);
 
     if (!foundUser) {
       // User not found
@@ -105,7 +102,7 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    logger.error('Error retrieving message acceptance status', error, { userId: user._id });
+    logger.error('Error retrieving message acceptance status', error, { userId: authUser._id });
     return Response.json(
       { success: false, message: 'Error retrieving message acceptance status' },
       { status: 500 }

@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { resolveAuthUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 const INVALID_EVENT_TYPES = ['Workshop', 'Course', 'Webinar', 'Meeting', 'Project', 'Other'];
 
 // Create a new event
