@@ -1,3 +1,4 @@
+import { getEmailFrom, getSiteOrigin } from '@/lib/siteConfig';
 import dbConnect from '@/lib/dbConnect';
 import EventModel from '@/model/Event';
 import { NextRequest, NextResponse } from 'next/server';
@@ -84,8 +85,8 @@ export async function POST(
         await event.populate('createdBy', 'username');
         const creatorUsername = (event.createdBy as any).username;
         
-        await resend.emails.send({
-          from: 'HiddenViews <verify@hiddenreviews.yashcore.app>',
+        const response = await resend.emails.send({
+          from: getEmailFrom(),
           to: [senderEmail],
           subject: `Your question about "${event.title}" has been answered!`,
           html: `
@@ -103,7 +104,7 @@ export async function POST(
               </div>
 
               <div style="margin: 24px 0; text-align: center;">
-                <a href="${process.env.NEXTAUTH_URL}/e/${event.slug}" 
+                <a href="${getSiteOrigin()}/e/${event.slug}"
                    style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
                   View Event Page
                 </a>
@@ -115,6 +116,9 @@ export async function POST(
             </div>
           `,
         });
+        if (!('id' in response)) {
+          throw new Error(response.error?.message || 'Resend rejected the email');
+        }
       } catch (emailError) {
         logger.error('Error sending query reply email notification', emailError);
         // Don't fail the request if email fails

@@ -11,7 +11,7 @@
 [![NextAuth.js](https://img.shields.io/badge/NextAuth.js-v4-purple)](https://next-auth.js.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 🚀 **Live Production Application:** [https://hiddenreviews.yashcore.app/](https://hiddenreviews.yashcore.app/)
+> 🚀 **Live Production Application:** [https://hiddenreviews.yashvrawat.in/](https://hiddenreviews.yashvrawat.in/)
 
 ---
 
@@ -223,6 +223,7 @@ NEXTAUTH_SECRET=generate_a_random_32_character_string_here
 
 # Email Delivery (Resend)
 RESEND_API_KEY=re_your_resend_api_key_here
+EMAIL_FROM="HiddenViews <verify@hiddenreviews.yashvrawat.in>"
 
 # AI Analytics & Suggestions (Google Gemini)
 GEMINI_API_KEY=AIzaSy_your_gemini_api_key_here
@@ -247,12 +248,36 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to test the 
 
 ## 🚀 Production Deployment
 
-### Recommended Platform: Vercel
+### Current deployment: Netlify
+
+The production website is https://hiddenreviews.yashvrawat.in. Cloudflare manages
+its DNS; the domain can remain registered with Hostinger.
+
+1. Set the primary production domain to `hiddenreviews.yashvrawat.in` in Netlify.
+2. Set `NEXTAUTH_URL=https://hiddenreviews.yashvrawat.in` for production builds and functions.
+3. Set `EMAIL_FROM=HiddenViews <verify@hiddenreviews.yashvrawat.in>` (without surrounding quotes in the dashboard).
+4. Keep the existing `NEXTAUTH_SECRET`, `MONGODB_URI`, and `GEMINI_API_KEY`.
+   Keep `RESEND_API_KEY` if it permits sending from the new verified domain;
+   otherwise replace it with a key scoped to that domain.
+5. Leave `ALLOWED_ORIGINS` empty for the same-origin website and native mobile app.
+   Add comma-separated exact origins only for additional browser clients.
+6. Rebuild and deploy, then check `/api/auth/providers`: its sign-in and callback
+   URLs must use the new hostname. Test sign-in, sign-out, verification, password
+   reset, contact email, reply notifications, event sharing, and PWA installation.
+7. Existing browser sessions and installed PWAs do not transfer across domains.
+   Previously shared links and QR codes must be replaced unless the old domain
+   can serve permanent redirects preserving paths and query strings.
+
+CORS is configured in `src/lib/cors.ts` and applied by API middleware and the
+NextAuth handler. Email links and sender settings use `src/lib/siteConfig.ts`.
+Do not restore static CORS headers or embed `NEXTAUTH_URL` through `next.config.js`.
+
+### Alternative platform: Vercel
 
 1. **Push your repository** to GitHub.
 2. **Import the project** into [Vercel](https://vercel.com).
 3. **Configure Environment Variables** in the Vercel project settings:
-   - `NEXTAUTH_URL`: Your production domain (e.g. `https://hiddenreviews.yashcore.app`)
+   - `NEXTAUTH_URL`: Your production domain (e.g. `https://hiddenreviews.yashvrawat.in`)
    - `NEXTAUTH_SECRET`: A high-entropy 32+ character secret
    - `MONGODB_URI`: Production MongoDB Atlas connection string
    - `RESEND_API_KEY`: Production Resend key

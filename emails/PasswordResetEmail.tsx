@@ -12,13 +12,15 @@ import {
   Button,
 } from '@react-email/components';
 
+import { getSiteOrigin } from '../src/lib/siteConfig';
+
 interface PasswordResetEmailProps {
   username: string;
   resetToken: string;
 }
 
 export default function PasswordResetEmail({ username, resetToken }: PasswordResetEmailProps) {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://hiddenreviews.yashcore.app';
+  const baseUrl = getSiteOrigin();
   const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
   return (

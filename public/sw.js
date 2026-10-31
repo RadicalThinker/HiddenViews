@@ -1,6 +1,6 @@
-const CACHE_NAME = 'hiddenviews-v1';
+const CACHE_NAME = 'hiddenviews-v2';
 const OFFLINE_URL = '/offline.html';
-const ALLOWED_DOMAIN = 'hiddenreviews.yashcore.app';
+const ALLOWED_DOMAIN = 'hiddenreviews.yashvrawat.in';
 
 // Check if we're on the correct domain
 const isCorrectDomain = () => {

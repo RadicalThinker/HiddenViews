@@ -6,10 +6,12 @@ import { ThemeProvider } from '../context/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import PWAInstaller from '@/components/PWAInstaller';
 
+import { getSiteOrigin } from '@/lib/siteConfig';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
+  metadataBase: new URL(getSiteOrigin()),
   title: 'HiddenViews - Anonymous Reviews & Queries',
   description: 'Get honest feedback and answer questions anonymously. Build trust through transparency.',
   keywords: ['anonymous feedback', 'reviews', 'queries', 'honest opinions', 'feedback platform'],
@@ -21,6 +23,7 @@ export const metadata: Metadata = {
     title: 'HiddenViews',
   },
   openGraph: {
+    url: getSiteOrigin(),
     title: 'HiddenViews - Anonymous Reviews & Queries',
     description: 'Get honest feedback and answer questions anonymously. Build trust through transparency.',
     type: 'website',

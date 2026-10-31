@@ -1,3 +1,4 @@
+import { getEmailFrom } from '@/lib/siteConfig';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { z } from 'zod';
@@ -40,8 +41,8 @@ export async function POST(req: Request) {
     const safeMessage = escapeHtml(message).replace(/\n/g, '<br>');
 
     try {
-      await resend.emails.send({
-        from: 'HiddenViews Contact <verify@hiddenreviews.yashcore.app>',
+      const response = await resend.emails.send({
+        from: getEmailFrom(),
         to: ['voicesecret9@gmail.com'],
         subject: `New Contact Form Message from ${safeName}`,
         html: `
@@ -68,6 +69,9 @@ export async function POST(req: Request) {
           </div>
         `
       });
+      if (!('id' in response)) {
+        throw new Error(response.error?.message || 'Resend rejected the email');
+      }
 
       return NextResponse.json({
         success: true,

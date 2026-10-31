@@ -1,33 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSiteOrigin } from './siteConfig';
 
 // CORS configuration
 export const corsOptions = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, X-Auth-Token, X-CSRF-Token',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, X-Auth-Token, X-CSRF-Token, X-NextAuth-CSRF-Token',
   'Access-Control-Allow-Credentials': 'true',
   'Access-Control-Max-Age': '86400',
 };
 
-export function getCorsHeaders(origin?: string) {
-  let allowedOrigin;
-  
-  if (process.env.NODE_ENV === 'production') {
-    // For same-origin requests (when origin is null/undefined), use the site URL
-    if (!origin) {
-      allowedOrigin = process.env.NEXTAUTH_URL || 'https://hiddenreviews.yashcore.app';
-    } else {
-      // For cross-origin requests, validate against allowed origins
-      const productionOrigins = [
-        'https://hiddenreviews.yashcore.app',
-        process.env.NEXTAUTH_URL
-      ].filter(Boolean);
-      
-      allowedOrigin = productionOrigins.includes(origin) ? origin : 'https://hiddenreviews.yashcore.app';
-    }
-  } else {
-    allowedOrigin = origin || 'http://localhost:3000';
-  }
+export function getCorsHeaders(origin?: string): Record<string, string> {
+  const siteOrigin = getSiteOrigin();
+  const developmentOrigins = process.env.NODE_ENV === 'production' ? [] : [
+    'http://localhost:3000',
+    'http://localhost:8081',
+    'http://localhost:19006',
+  ];
+  const allowedOrigins = [
+    siteOrigin,
+    ...developmentOrigins,
+    ...(process.env.ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean),
+  ];
 
+  // Never reflect an untrusted origin or emit multiple origins in one header.
+  const allowedOrigin = origin && allowedOrigins.includes(origin) ? origin : siteOrigin;
   return {
     'Access-Control-Allow-Origin': allowedOrigin,
     ...corsOptions,
@@ -49,7 +45,16 @@ export function addCorsHeaders(response: NextResponse, origin?: string): NextRes
   const corsHeaders = getCorsHeaders(origin);
   
   Object.entries(corsHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
+    if (key === 'Vary') {
+      const existing = response.headers.get('Vary');
+      const values = (existing || '').split(',').map(value => value.trim()).filter(Boolean);
+      if (!values.some(value => value.toLowerCase() === 'origin') && !values.includes('*')) {
+        values.push('Origin');
+      }
+      response.headers.set(key, values.join(', '));
+    } else {
+      response.headers.set(key, value);
+    }
   });
   
   return response;
@@ -68,12 +73,8 @@ export function handleCors(req: NextRequest, response?: NextResponse) {
     });
   }
 
-  // Add CORS headers to existing response
   if (response) {
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value);
-    });
-    return response;
+    return addCorsHeaders(response, origin || undefined);
   }
 
   // Return CORS headers for manual application

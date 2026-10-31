@@ -1,5 +1,6 @@
-import { withAuth } from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
+import { withAuth, type NextRequestWithAuth } from 'next-auth/middleware';
+import { NextResponse, type NextRequest, type NextFetchEvent } from 'next/server';
+import { addCorsHeaders, handleCorsPreflightRequest } from '@/lib/cors';
 
 export const config = {
   matcher: [
@@ -15,18 +16,9 @@ export const config = {
   ],
 };
 
-// CORS configuration
-const corsOptions = {
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control, X-Auth-Token, X-CSRF-Token',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400',
-};
-
-export default withAuth(
+const authMiddleware = withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
-    const origin = req.headers.get('origin') || '';
     const token = req.nextauth.token;
 
     // Redirect authenticated users away from auth pages to dashboard
@@ -39,37 +31,6 @@ export default withAuth(
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
     
-    // Handle CORS for API routes (except NextAuth routes which handle their own CORS)
-    if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
-      // Handle preflight requests
-      if (req.method === 'OPTIONS') {
-        return new NextResponse(null, {
-          status: 200,
-          headers: {
-            'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production' 
-              ? (process.env.NEXTAUTH_URL || origin)
-              : 'http://localhost:3000',
-            ...corsOptions,
-          },
-        });
-      }
-
-      // Continue with the request and add CORS headers to the response
-      const response = NextResponse.next();
-      
-      response.headers.set('Access-Control-Allow-Origin', 
-        process.env.NODE_ENV === 'production' 
-          ? (process.env.NEXTAUTH_URL || origin)
-          : 'http://localhost:3000'
-      );
-      
-      Object.entries(corsOptions).forEach(([key, value]) => {
-        response.headers.set(key, value);
-      });
-
-      return response;
-    }
-
     // For all other routes, NextAuth middleware will handle authentication
     return NextResponse.next();
   },
@@ -108,3 +69,14 @@ export default withAuth(
     },
   }
 );
+
+// NextAuth skips its callback for /api/auth/*; apply API CORS before withAuth.
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
+  if (req.nextUrl.pathname.startsWith('/api/')) {
+    if (req.method === 'OPTIONS') {
+      return handleCorsPreflightRequest(req);
+    }
+    return addCorsHeaders(NextResponse.next(), req.headers.get('origin') || undefined);
+  }
+  return authMiddleware(req as NextRequestWithAuth, event);
+}

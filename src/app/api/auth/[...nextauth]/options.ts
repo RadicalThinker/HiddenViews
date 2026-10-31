@@ -38,13 +38,12 @@ const validateEnvironment = () => {
       logger.warn('NEXTAUTH_URL should not end with a trailing slash', { authUrl });
     }
 
-    // Additional validation for your specific domain
-    if (!authUrl.includes('hiddenreviews.yashcore.app')) {
-      logger.error('NEXTAUTH_URL does not match expected domain', { 
-        authUrl, 
-        expected: 'https://hiddenreviews.yashcore.app' 
-      });
+    const parsedUrl = new URL(authUrl);
+    if (parsedUrl.protocol !== 'https:' || parsedUrl.username || parsedUrl.password ||
+        parsedUrl.pathname !== '/' || parsedUrl.search || parsedUrl.hash) {
+      throw new Error('NEXTAUTH_URL must be an HTTPS origin without a path, credentials, query, or fragment');
     }
+
   }
   
   logger.info('Environment validation passed', {
